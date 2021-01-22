@@ -21,6 +21,7 @@ t_ast_tree *pipe_com_node(t_token **tmp)
 
 t_ast_tree *lesser_bigger_com_node(t_token **tmp, int type)
 {
+	
 	t_ast_tree *cmd;
 	t_ast_tree *left = NULL;
 	t_ast_tree *right = NULL;
