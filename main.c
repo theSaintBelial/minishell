@@ -50,27 +50,21 @@ int lexical_analysis(t_vars *vars, t_parser *parser)
 	char		type;
 	int			i;
 
-	//parser = malloc(sizeof(t_parser));
 	parser->list = malloc(sizeof(t_token));
 	tmp = parser->list;
 	init_lst(tmp, ft_strlen(vars->line));
 	vars->count = 0;
-	vars->status = ORIG_STATUS;
 	i = 0;
 	while (vars->line[i])
 	{
 		type = get_token(vars->line[i]);
-		if (vars->status == ORIG_STATUS)
-			check_type_token(type, &tmp, vars, &i);
-		else
-			check_status(type, &tmp, vars, i);
+		check_type_token(type, &tmp, vars, &i);
 		i++;
 	}
 	tmp = parser->list;
-	// tmp = parser->list;
 	// while (tmp != NULL)
 	// {
-	// 	printf("%d %s %c\n", tmp->is_cmd, tmp->data, tmp->type);
+	// 	printf("%s %c\n", tmp->data, tmp->type);
 	// 	tmp = tmp->next;
 	// }
 	// printf("------------------------\n");

@@ -21,7 +21,7 @@ t_ast_tree *pipe_com_node(t_token **tmp)
 
 t_ast_tree *lesser_bigger_com_node(t_token **tmp, int type)
 {
-	
+
 	t_ast_tree *cmd;
 	t_ast_tree *left = NULL;
 	t_ast_tree *right = NULL;
@@ -31,7 +31,7 @@ t_ast_tree *lesser_bigger_com_node(t_token **tmp, int type)
 		(*tmp) = (*tmp)->next;
 	if ((*tmp)->type == GREATER_THEN)
 		(*tmp) = (*tmp)->next;
-	right = arg_case(tmp, NONE);
+	check_left_right(&right, tmp);
 	if (right == NULL || left == NULL)
 		return NULL;
 	cmd = set_node(NULL, type, left, right);

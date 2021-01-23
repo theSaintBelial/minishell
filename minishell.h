@@ -106,7 +106,6 @@ int					check_type_token(char type, t_token **tmp, t_vars *vars, int *i);
 void				check_all_tokens(t_token **tmp);
 void				init_new_node(t_token **tmp, int size);
 void				get_next_node(t_token **tmp, t_vars *vars, int *i);
-void				check_status(char type, t_token **tmp, t_vars *vars, int i);
 int					parse(t_parser *parser, t_ast_tree **tree);
 t_ast_tree			*pipe_com_node(t_token **tmp);
 t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type);
@@ -117,4 +116,5 @@ t_ast_tree			*set_node(char *data, int type, t_ast_tree *left, t_ast_tree *right
 t_ast_tree			*get_arg(char *data, t_ast_tree *left, t_ast_tree *right, int type);
 t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
+t_ast_tree			*command_node(t_token *list, int type);
 #endif

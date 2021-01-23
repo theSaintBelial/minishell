@@ -25,7 +25,6 @@ void printtree(t_ast_tree *exectree, int t)
 // // ** command arg ; comand arg ; .......
 // // */
 
-
 void check_left_right(t_ast_tree **node, t_token **tmp)
 {
 	if (check_lesser_bigger(*tmp) == 1)
@@ -38,26 +37,49 @@ void check_left_right(t_ast_tree **node, t_token **tmp)
 		*node = arg_case(tmp, NONE);
 }
 
+void sec_comm_node(t_token **tmp, t_ast_tree **left, t_ast_tree **right, char type)
+{
+	if (type == 'l')
+	{
+		if (check_pipe(*tmp) == 1)
+			*left = pipe_com_node(tmp);
+		else
+			check_left_right(left, tmp);
+		if ((*tmp)->type == SEMICOLON)
+			(*tmp) = (*tmp)->next;
+		return ;
+	}
+	if (type == 'r')
+	{
+		if (first_case_semicolon(*tmp) == 1)
+			*right = command_node(*tmp, SEMICOLON_N);
+		else if (check_pipe(*tmp) == 1)
+			*right = pipe_com_node(tmp);
+		else
+			check_left_right(right, tmp);
+		return ;	
+	}
+}
+
 t_ast_tree *command_node(t_token *list, int type)
 {
 	t_token *tmp;
 	t_ast_tree *cmd;
-	t_ast_tree *left = NULL;
-	t_ast_tree *right = NULL;
-	tmp = list;
+	t_ast_tree *left;
+	t_ast_tree *right;
 
-	if (check_pipe(tmp) == 1)
-		left = pipe_com_node(&tmp);
-	else
-		check_left_right(&left, &tmp);
-	if (tmp->type == SEMICOLON)
-		tmp = tmp->next;
-	if (first_case_semicolon(tmp) == 1)
-		right = command_node(tmp, SEMICOLON_N);
-	else if (check_pipe(tmp) == 1)
-		right = pipe_com_node(&tmp);
-	else
-		check_left_right(&right, &tmp);
+	left = NULL;
+	right = NULL;
+	tmp = list;
+	sec_comm_node(&tmp, &left, &right, 'l');
+	if (tmp->next == NULL)
+	{
+		if (left == NULL)
+			return NULL;
+		cmd = set_node(NULL, type, left, right);
+		return cmd;
+	}
+	sec_comm_node(&tmp, &left, &right, 'r');
 	if (left == NULL || right == NULL)
 		return NULL;
 	cmd = set_node(NULL, type, left, right);
