@@ -5,6 +5,8 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdio.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 
 # include "gnl/get_next_line.h"
 # include "libft/libft.h"
@@ -24,11 +26,13 @@
 #define				C_CHAR '/'
 #define				TOKEN '-'
 
-#define				PROMPT "\033[1;35mour-minishell$>\033[0m"
+#define				PROMPT "\033[1;35mour-minishell$ \033[0m"
 
 /*
 ** STATUS OF FORWARD SLASH
 */
+
+typedef short		bool;
 
 enum				e_status
 {
@@ -62,7 +66,7 @@ enum 				e_ast_flags
 ** TOKEN DEFINITION
 */
 
-typedef struct s_token  
+typedef struct s_token
 {
 	char			*data;
 	char			type;
@@ -101,6 +105,24 @@ typedef struct s_tree
 	struct s_tree	*right;
 }					t_ast_tree;
 
+typedef struct	s_task
+{
+	bool		is_pipe_in;
+	bool		is_pipe_out;
+	int			pipe_in_fd;
+	int			pipe_out_fd;
+}				t_task;
+
+typedef struct	s_cmd
+{
+	char	**argv;
+	int		argc;
+	t_task	*config;
+	char	**in_out;
+	bool	rewrite;
+}				t_cmd;
+
+
 void				init_lst(t_token *tmp, int size);
 int					check_type_token(char type, t_token **tmp, t_vars *vars, int *i);
 void				check_all_tokens(t_token **tmp);
@@ -117,4 +139,10 @@ t_ast_tree			*set_node(char *data, int type, t_ast_tree *left, t_ast_tree *right
 t_ast_tree			*get_arg(char *data, t_ast_tree *left, t_ast_tree *right, int type);
 t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
+
+/*
+** executor.c
+*/
+void	executor(t_ast_tree *root_ptr, char **envp_buf);
+
 #endif

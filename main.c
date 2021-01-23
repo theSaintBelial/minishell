@@ -78,8 +78,13 @@ int lexical_analysis(t_vars *vars, t_parser *parser)
 	return 0;
 }
 
-int main()
+int main(int argc, char **argv, char **envp)
 {
+
+	// printing env vars
+	// for (int i = 0; envp[i]; i++)
+	// 	printf("[%d]: %s\n", i, envp[i]);
+
 	t_vars		vars;
 	t_parser	*parser;
 	t_ast_tree	*tree;
@@ -101,6 +106,9 @@ int main()
 		}
 		lexical_analysis(&vars, parser);
 		parse(parser, &tree);
+
+		executor(tree, envp);
+
 		vars.checker = FALSE;
 	}
 	return (EXIT_SUCCESS);
