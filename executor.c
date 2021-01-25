@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/25 19:15:15 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/25 21:54:16 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,52 @@ void	print_cmd_config(t_cmd *cmd)
 }
 
 void	echo_exec(){}
-void	cd_exec(){}
-void	pwd_exec(){}
+void	cd_exec(t_cmd *cmd)
+{
+	if (cmd->argc > 2)
+		ft_putendl_fd("cd: Too many arguments", 2);
+	else if (cmd->argc == 1)
+	{
+		// get to home
+	}
+	else
+	{
+		if (chdir(cmd->argv[1]))
+			// error
+			;
+	}
+}
+
+void	pwd_exec(t_cmd *cmd)
+{
+	char	dir[1024];
+	pid_t	pid;
+
+	pid = fork();
+	if (pid < 0)
+		; // error
+	else if (pid == 0)
+	{
+		if (cmd->in_out[1])
+			;
+		else if (cmd->config->is_pipe_out)
+			;
+
+		if (getcwd(dir, sizeof(dir)))
+			ft_putendl_fd(dir, STDOUT_FILENO);
+		else
+			;
+		exit(EXIT_SUCCESS);
+	}
+	else
+		while (waitpid(pid, NULL, 0) <= 0)
+			;
+
+}
+
 void	export_exec(){}
 void	unset_exec(){}
 void	env_exec(){}
-void	exit_exec(){}
 
 void	default_bin_exec(t_cmd *cmd)
 {
@@ -114,9 +154,9 @@ void	cmd_exec(t_cmd *cmd)
 	if (!ft_strncmp(bin, "echo", 10))
 		echo_exec();
 	else if (!ft_strncmp(bin, "cd", 10))
-		cd_exec();
+		cd_exec(cmd);
 	else if (!ft_strncmp(bin, "pwd", 10))
-		pwd_exec();
+		pwd_exec(cmd);
 	else if (!ft_strncmp(bin, "export", 10))
 		export_exec();
 	else if (!ft_strncmp(bin, "unset", 10))
@@ -218,7 +258,6 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
 		close(config->pipe_in_fd);
 		tmp = tmp->right;
 	}
-
 	close(fd[1]);
 	task_config(config);
 	config->is_pipe_in = TRUE;
