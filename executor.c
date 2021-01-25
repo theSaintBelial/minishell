@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/25 21:54:16 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/25 22:02:17 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ void	print_cmd_config(t_cmd *cmd)
 }
 
 void	echo_exec(){}
+
 void	cd_exec(t_cmd *cmd)
 {
 	if (cmd->argc > 2)
@@ -67,7 +68,7 @@ void	cd_exec(t_cmd *cmd)
 
 void	pwd_exec(t_cmd *cmd)
 {
-	char	dir[1024];
+	char	*dir;
 	pid_t	pid;
 
 	pid = fork();
@@ -80,8 +81,11 @@ void	pwd_exec(t_cmd *cmd)
 		else if (cmd->config->is_pipe_out)
 			;
 
-		if (getcwd(dir, sizeof(dir)))
+		if ((dir = getcwd(NULL, 0)))
+		{
 			ft_putendl_fd(dir, STDOUT_FILENO);
+			free(dir);
+		}
 		else
 			;
 		exit(EXIT_SUCCESS);
