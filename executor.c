@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/24 10:00:30 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/25 19:15:15 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,31 +70,27 @@ void	default_bin_exec(t_cmd *cmd)
 	}
 	else if (pid == 0)
 	{
-		// child process
-		stdout_fd = dup(STDOUT_FILENO); // buf the stdout
-
+		stdout_fd = dup(STDOUT_FILENO);
 		if (cmd->in_out[0])
 		{
 			if ((fd = open(cmd->in_out[0], O_RDONLY)) == -1)
 				// error;
 				exit(EXIT_FAILURE);
 			dup2(fd, STDIN_FILENO);
-
 		}
-		else if (cmd->in_out[1])
+		else if (cmd->config->is_pipe_in)
+			dup2(cmd->config->pipe_in_fd, STDIN_FILENO);
+		if (cmd->in_out[1])
 		{
 			if (cmd->rewrite)
-				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT);
+				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
 			else
-				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND);
+				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
 			if (fd == -1)
 				// error;
 				exit(EXIT_FAILURE);
 			dup2(fd, STDOUT_FILENO);
 		}
-
-		if (cmd->config->is_pipe_in)
-			dup2(cmd->config->pipe_in_fd, STDIN_FILENO);
 		else if (cmd->config->is_pipe_out)
 			dup2(cmd->config->pipe_out_fd, STDOUT_FILENO);
 
@@ -106,17 +102,12 @@ void	default_bin_exec(t_cmd *cmd)
 		}
 	}
 	else
-	{
-		// parent - waiting while child ends
 		while (waitpid(pid, NULL, 0) <= 0)
 			;
-	}
 }
 
 void	cmd_exec(t_cmd *cmd)
 {
-	// print_cmd_config(cmd);
-
 	char	*bin;
 
 	bin = cmd->argv[0];
@@ -146,6 +137,7 @@ void	execute_task(t_ast_tree *root_ptr, t_task *config, char *in_out[2], bool re
 
 	if (root_ptr)
 	{
+		i = 0;
 		tmp = root_ptr;
 		while (tmp)
 		{
@@ -203,7 +195,8 @@ void	execute_job(t_ast_tree *root_ptr, t_task *config)
 
 void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
 {
-	int		fd[2];
+	int			fd[2];
+	t_ast_tree	*tmp;
 
 	pipe(fd);
 	config->is_pipe_out = TRUE;
@@ -211,12 +204,26 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
 	execute_job(root_ptr->left, config);
 
 	// TODO: multi pipes handle (use while)
+	tmp = root_ptr->right;
+	while (tmp && tmp->type == PIPE_N)
+	{
+		close(config->pipe_out_fd);
+		config->is_pipe_in = TRUE;
+		config->pipe_in_fd = fd[0];
+
+		pipe(fd);
+		config->is_pipe_out = TRUE;
+		config->pipe_out_fd = fd[1];
+		execute_job(tmp->left, config);
+		close(config->pipe_in_fd);
+		tmp = tmp->right;
+	}
 
 	close(fd[1]);
 	task_config(config);
 	config->is_pipe_in = TRUE;
 	config->pipe_in_fd = fd[0];
-	execute_job(root_ptr->left, config);
+	execute_job(tmp, config);
 	close(fd[0]);
 }
 
