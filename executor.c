@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/25 22:02:17 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/26 23:14:27 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,22 +50,6 @@ void	print_cmd_config(t_cmd *cmd)
 
 void	echo_exec(){}
 
-void	cd_exec(t_cmd *cmd)
-{
-	if (cmd->argc > 2)
-		ft_putendl_fd("cd: Too many arguments", 2);
-	else if (cmd->argc == 1)
-	{
-		// get to home
-	}
-	else
-	{
-		if (chdir(cmd->argv[1]))
-			// error
-			;
-	}
-}
-
 void	pwd_exec(t_cmd *cmd)
 {
 	char	*dir;
@@ -96,9 +80,119 @@ void	pwd_exec(t_cmd *cmd)
 
 }
 
+char	*get_current_home_path()
+{
+	char	*current_usr_name;
+	char	*current_home_path;
+	int		i;
+
+	i = 0;
+	while (envp[i])
+	{
+		if (!ft_strncmp(envp[i], "USER=", 5))
+		{
+			current_usr_name = ft_strchr(envp[i], '=') + 1;
+			if (!(current_home_path = ft_strjoin("/home/", current_usr_name)))
+			{
+				; // error
+				exit(EXIT_FAILURE);
+			}
+			return (current_home_path);
+		}
+		i++;
+	}
+	return (NULL);
+}
+
+void	cd_exec(t_cmd *cmd)
+{
+	char	*current_home_path;
+
+	if (cmd->argc > 2)
+		ft_putendl_fd("cd: Too many arguments", 2);
+	else if (cmd->argc == 1)
+	{
+		// get to home
+		current_home_path = get_current_home_path();
+		if (chdir(current_home_path))
+			// error
+			;
+	}
+	else
+	{
+		if (chdir(cmd->argv[1]))
+			// error
+			;
+	}
+}
+
 void	export_exec(){}
 void	unset_exec(){}
 void	env_exec(){}
+
+char	**handle_path_dirs()
+{
+	int		i;
+	char	**path_dirs;
+
+	i = 0;
+	while (envp[i])
+	{
+		if (!ft_strncmp(envp[i], "PATH=", 5))
+		{
+			if (!(path_dirs = ft_split(ft_strchr(envp[i], '=') + 1, ':')))
+			{
+				; // error
+				exit(EXIT_FAILURE);
+			}
+			return (path_dirs);
+		}
+		i++;
+	}
+	return (NULL);
+}
+
+bool	check_for_binary(t_cmd *cmd)
+{
+	char	**path_dirs;
+	int		i;
+	char	*full_bin;
+	char	*bin;
+
+	if (!(path_dirs = handle_path_dirs()))
+	{
+		// error
+		return (FALSE);
+	}
+	i = 0;
+	while (path_dirs[i])
+	{
+		if (!(bin = ft_strjoin("/", cmd->argv[0])))
+		{
+			; // error
+			// free(path_dirs)
+			exit(EXIT_FAILURE);
+		}
+		if (!(full_bin = ft_strjoin(path_dirs[i], bin)))
+		{
+			; // error
+			// free path_dirs
+			return (FALSE);
+		}
+		if (execve(full_bin, cmd->argv, envp) != -1)
+		{
+			// free all
+			return (TRUE);
+		}
+		i++;
+	}
+	if (execve(cmd->argv[0], cmd->argv, envp) == -1)
+	{
+		; // error
+		return (FALSE);
+	}
+	return (TRUE);
+}
 
 void	default_bin_exec(t_cmd *cmd)
 {
@@ -137,8 +231,7 @@ void	default_bin_exec(t_cmd *cmd)
 		}
 		else if (cmd->config->is_pipe_out)
 			dup2(cmd->config->pipe_out_fd, STDOUT_FILENO);
-
-		if (execve(cmd->argv[0], cmd->argv, envp) == -1)
+		if (!check_for_binary(cmd))
 		{
 			dup2(stdout_fd, STDOUT_FILENO);
 			perror("execve");
