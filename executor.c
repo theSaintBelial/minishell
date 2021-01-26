@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/26 23:14:27 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/26 23:23:51 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,21 +82,15 @@ void	pwd_exec(t_cmd *cmd)
 
 char	*get_current_home_path()
 {
-	char	*current_usr_name;
 	char	*current_home_path;
 	int		i;
 
 	i = 0;
 	while (envp[i])
 	{
-		if (!ft_strncmp(envp[i], "USER=", 5))
+		if (!ft_strncmp(envp[i], "HOME=", 5))
 		{
-			current_usr_name = ft_strchr(envp[i], '=') + 1;
-			if (!(current_home_path = ft_strjoin("/home/", current_usr_name)))
-			{
-				; // error
-				exit(EXIT_FAILURE);
-			}
+			current_home_path = ft_strchr(envp[i], '=') + 1;
 			return (current_home_path);
 		}
 		i++;
@@ -128,7 +122,10 @@ void	cd_exec(t_cmd *cmd)
 
 void	export_exec(){}
 void	unset_exec(){}
-void	env_exec(){}
+void	env_exec()
+{
+
+}
 
 char	**handle_path_dirs()
 {
