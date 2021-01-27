@@ -56,7 +56,7 @@ enum 				e_ast_flags
 	D_GREATER_N,
 	CMD_IO_N,
 	IO_LIST_N,
-	VARIEBLE_N,
+	VARIABLE_N,
 	NONE,
 };
 
@@ -120,7 +120,6 @@ t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
 t_ast_tree			*command_node(t_token *list, int type);
 t_ast_tree			*arg_case_sec(t_token **lst, int type);
-void				get_varieble(t_token **tmp);
-
+void				get_variable(t_token **tmp);
 
 #endif

@@ -54,8 +54,8 @@ t_ast_tree	*arg_case(t_token **lst, int type)
 	if (tmp != NULL && tmp->type == DOLLAR)
 	{
 		tmp = tmp->next;
-		type = VARIEBLE_N;
-		get_varieble(&tmp);
+		type = VARIABLE_N;
+		get_variable(&tmp);
 	}
 	else
 		type = NONE;

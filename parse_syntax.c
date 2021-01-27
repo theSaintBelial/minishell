@@ -23,17 +23,23 @@ void printtree(t_ast_tree *exectree, int t)
 	// }
 }
 
-void		get_varieble(t_token **tmp)
+void		get_variable(t_token **tmp)
 {
 	int i;
-	int j;
+	int len;
+	char *str;
 
 	i = 0;
+	len = ft_strlen((*tmp)->data);
 	while (g_envp[i])
 	{
-		if (ft_strncmp(g_envp[i], (*tmp)->data, ft_strlen((*tmp)->data)) == 0)
-		{
-			printf("LOL\n");
+		if (ft_strncmp(g_envp[i], (*tmp)->data, len) == 0)
+	 	{
+	 		str = ft_strdup(g_envp[i]);
+			free((*tmp)->data);
+			(*tmp)->data = ft_strdup(str + (len + 1));
+			free(str);
+			return ;
 		}
 		i++;
 	}
