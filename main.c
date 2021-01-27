@@ -78,7 +78,7 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 	return (0);
 }
 
-int		main()
+int		main(int argc, char **argv, char **envp)
 {
 	t_vars		vars;
 	t_parser	*parser;
@@ -101,7 +101,7 @@ int		main()
 				err(parser);
 		}
 		lexical_analysis(&vars, parser);
-		parse(parser, &tree);
+		parse(parser, &tree, envp);
 		vars.checker = FALSE;
 	}
 	return (EXIT_SUCCESS);

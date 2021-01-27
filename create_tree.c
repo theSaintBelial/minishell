@@ -55,6 +55,7 @@ t_ast_tree	*arg_case(t_token **lst, int type)
 	{
 		tmp = tmp->next;
 		type = VARIEBLE_N;
+		get_varieble(&tmp);
 	}
 	else
 		type = NONE;

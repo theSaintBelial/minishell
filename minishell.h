@@ -54,6 +54,7 @@ enum 				e_ast_flags
 	LESS_N,
 	GREATER_N,
 	D_GREATER_N,
+	CMD_IO_N,
 	IO_LIST_N,
 	VARIEBLE_N,
 	NONE,
@@ -107,9 +108,9 @@ int					check_type_token(char type, t_token **tmp, t_vars *vars, int *i);
 void				check_all_tokens(t_token **tmp);
 int					init_new_node(t_token **tmp, int size);
 int					get_next_node(t_token **tmp, t_vars *vars, int *i);
-int					parse(t_parser *parser, t_ast_tree **tree);
+int					parse(t_parser *parser, t_ast_tree **tree, char **env_buf);
 t_ast_tree			*pipe_com_node(t_token **tmp);
-t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type, int ex_type);
+t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type, int ex_type, int flag);
 int					first_case_semicolon(t_token *list);
 int					check_pipe(t_token *list);
 int					check_lesser_bigger(t_token *list);
@@ -119,5 +120,7 @@ t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
 t_ast_tree			*command_node(t_token *list, int type);
 t_ast_tree			*arg_case_sec(t_token **lst, int type);
+void				get_varieble(t_token **tmp);
+
 
 #endif
