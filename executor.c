@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/27 11:16:05 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/27 11:47:30 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char	**envp;
 
-void	task_config(t_task *task)
+void	set_config(t_task *task)
 {
 	task->is_pipe_in = FALSE;
 	task->is_pipe_out = FALSE;
@@ -327,7 +327,7 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
 		tmp = tmp->right;
 	}
 	close(fd[1]);
-	task_config(config);
+	set_config(config);
 	config->is_pipe_in = TRUE;
 	config->pipe_in_fd = fd[0];
 	execute_job(tmp, config);
@@ -344,7 +344,7 @@ void	execute_command(t_ast_tree *root_ptr)
 {
 	t_task	config;
 
-	task_config(&config);
+	set_config(&config);
 	if (root_ptr)
 	{
 		if (root_ptr->type == PIPE_N)
