@@ -1,12 +1,23 @@
 #include "minishell.h"
 
-int err()
+int		err(t_parser *parser)
 {
+	if (parser != NULL)
+	{
+		while (parser->list != NULL)
+		{
+			if (parser->list->data != NULL)
+				free(parser->list->data);
+			free(parser->list);
+			parser->list = parser->list->next;
+		}
+		free(parser);
+	}
 	ft_putstr_fd("ERROR\n", 1);
-	return -1;
+	exit(0);
 }
 
-char get_token_sec(char c)
+char	get_token_sec(char c)
 {
 	if (c == ENTER)
 		return (ENTER);
@@ -16,10 +27,10 @@ char get_token_sec(char c)
 		return (GREATER_THEN);
 	else if (c == C_NULL)
 		return (C_NULL);
-	return C_CHAR;
+	return (C_CHAR);
 }
 
-char get_token(char c)
+char	get_token(char c)
 {
 	if (c == PIPE)
 		return (PIPE);
@@ -44,15 +55,17 @@ char get_token(char c)
 ** CHECK STATUS OF SPECIAL CHAR OR FORWARD SLASH (lexical_analysis.c)
 */
 
-int lexical_analysis(t_vars *vars, t_parser *parser)
+int		lexical_analysis(t_vars *vars, t_parser *parser)
 {
 	t_token 	*tmp;
 	char		type;
 	int			i;
 
-	parser->list = malloc(sizeof(t_token));
+	if (!(parser->list = malloc(sizeof(t_token))))
+		err(parser);
 	tmp = parser->list;
-	init_lst(tmp, ft_strlen(vars->line));
+	if (!(init_lst(tmp, ft_strlen(vars->line))))
+		err(parser);
 	vars->count = 0;
 	i = 0;
 	while (vars->line[i])
@@ -62,17 +75,10 @@ int lexical_analysis(t_vars *vars, t_parser *parser)
 		i++;
 	}
 	tmp = parser->list;
-	// while (tmp != NULL)
-	// {
-	// 	printf("%s %c\n", tmp->data, tmp->type);
-	// 	tmp = tmp->next;
-	// }
-	// printf("------------------------\n");
-	// exit(0);
-	return 0;
+	return (0);
 }
 
-int main()
+int		main()
 {
 	t_vars		vars;
 	t_parser	*parser;
@@ -80,7 +86,8 @@ int main()
 
 	vars.line = NULL;
 	vars.checker = TRUE;
-	parser = malloc(sizeof(t_parser));
+	if (!(parser = malloc(sizeof(t_parser))))
+		err(parser);
 	tree = NULL;
 	while(vars.checker)
 	{
@@ -91,7 +98,7 @@ int main()
 			ft_putstr_fd(PROMPT, STDOUT_FILENO);
 			vars.gnl_check = get_next_line(STDIN_FILENO, &(vars.line));
 			if (vars.gnl_check == -1)
-				err();
+				err(parser);
 		}
 		lexical_analysis(&vars, parser);
 		parse(parser, &tree);
