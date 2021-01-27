@@ -7,6 +7,8 @@
 # include <stdio.h>
 # include <sys/types.h>
 # include <sys/wait.h>
+# include <string.h>
+# include <errno.h>
 
 # include "gnl/get_next_line.h"
 # include "libft/libft.h"

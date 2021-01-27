@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/26 23:23:51 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/27 11:16:05 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,32 +20,6 @@ void	task_config(t_task *task)
 	task->is_pipe_out = FALSE;
 	task->pipe_in_fd = 0;
 	task->pipe_out_fd = 0;
-}
-
-void	print_cmd_config(t_cmd *cmd)
-{
-	printf("CMD CONFIG:\n");
-	if (cmd->argv)
-	{
-		printf("ARGV:\n");
-		for (int i = 0; cmd->argv[i]; i++)
-			printf("\t[%d]: %s\n", i, cmd->argv[i]);
-	}
-	if (cmd->config)
-	{
-		printf("TASK CONFIG:\n");
-		printf("\tis_pipe_in: %s\n", cmd->config->is_pipe_in ? "true" : "false");
-		printf("\tis_pipe_out: %s\n", cmd->config->is_pipe_out ? "true" : "false");
-		printf("\tfd_pipe_in: %d\n", cmd->config->pipe_in_fd);
-		printf("\tfd_pipe_out: %d\n", cmd->config->pipe_out_fd);
-	}
-	if (cmd->in_out)
-	{
-		printf("IN_OUT:\n");
-		printf("\t[IN]: %s\n", cmd->in_out[0]);
-		printf("\t[OUT]: %s\n", cmd->in_out[1]);
-	}
-	printf("REWRITE: %s\n\n------------------------------------\n", cmd->rewrite ? "true" : "false");
 }
 
 void	echo_exec(){}
@@ -122,10 +96,7 @@ void	cd_exec(t_cmd *cmd)
 
 void	export_exec(){}
 void	unset_exec(){}
-void	env_exec()
-{
-
-}
+void	env_exec(){}
 
 char	**handle_path_dirs()
 {
@@ -209,8 +180,11 @@ void	default_bin_exec(t_cmd *cmd)
 		if (cmd->in_out[0])
 		{
 			if ((fd = open(cmd->in_out[0], O_RDONLY)) == -1)
+			{
 				// error;
+				ft_putendl_fd(strerror(errno), STDERR_FILENO);
 				exit(EXIT_FAILURE);
+			}
 			dup2(fd, STDIN_FILENO);
 		}
 		else if (cmd->config->is_pipe_in)
@@ -231,7 +205,7 @@ void	default_bin_exec(t_cmd *cmd)
 		if (!check_for_binary(cmd))
 		{
 			dup2(stdout_fd, STDOUT_FILENO);
-			perror("execve");
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -332,12 +306,11 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
 	int			fd[2];
 	t_ast_tree	*tmp;
 
-	pipe(fd);
+	if (pipe(fd) == -1)
+		; // error
 	config->is_pipe_out = TRUE;
 	config->pipe_out_fd = fd[1];
 	execute_job(root_ptr->left, config);
-
-	// TODO: multi pipes handle (use while)
 	tmp = root_ptr->right;
 	while (tmp && tmp->type == PIPE_N)
 	{
@@ -345,7 +318,8 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
 		config->is_pipe_in = TRUE;
 		config->pipe_in_fd = fd[0];
 
-		pipe(fd);
+		if (pipe(fd) == -1)
+			; // error
 		config->is_pipe_out = TRUE;
 		config->pipe_out_fd = fd[1];
 		execute_job(tmp->left, config);

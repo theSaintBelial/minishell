@@ -80,11 +80,6 @@ int lexical_analysis(t_vars *vars, t_parser *parser)
 
 int main(int argc, char **argv, char **envp)
 {
-
-	// printing env vars
-	// for (int i = 0; envp[i]; i++)
-	// 	printf("[%d]: %s\n", i, envp[i]);
-
 	t_vars		vars;
 	t_parser	*parser;
 	t_ast_tree	*tree;
