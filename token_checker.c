@@ -22,7 +22,7 @@ t_ast_tree	*pipe_com_node(t_token **tmp)
 	return (cmd);
 }
 
-t_ast_tree	*lesser_bigger_com_node(t_token **tmp, int type, int ex_type)
+t_ast_tree	*lesser_bigger_com_node(t_token **tmp, int type, int ex_type, int flag)
 {
 	t_ast_tree *cmd;
 	t_ast_tree *left;
@@ -36,16 +36,20 @@ t_ast_tree	*lesser_bigger_com_node(t_token **tmp, int type, int ex_type)
 	if ((*tmp)->type == GREATER_THEN)
 		(*tmp) = (*tmp)->next;
 	if (check_lesser_bigger(*tmp) == 1)
-		right = lesser_bigger_com_node(tmp, LESS_N, type);
+		right = lesser_bigger_com_node(tmp, LESS_N, type, 1);
 	else if (check_lesser_bigger(*tmp) == 2)
-		right = lesser_bigger_com_node(tmp, GREATER_N, type);
+		right = lesser_bigger_com_node(tmp, GREATER_N, type, 1);
 	else if (check_lesser_bigger(*tmp) == 3)
-		right = lesser_bigger_com_node(tmp, D_GREATER_N, type);
+		right = lesser_bigger_com_node(tmp, D_GREATER_N, type, 1);
 	else
 		right = arg_case_sec(tmp, type);
 	if (right == NULL || left == NULL)
 		return (NULL);
-	cmd = set_node(NULL, IO_LIST_N, left, right);
+	if (flag == 0)
+		cmd = set_node(NULL, CMD_IO_N, left, right);
+	else
+		cmd = set_node(NULL, IO_LIST_N, left, right);
+	flag = 1;
 	return (cmd);
 }
 

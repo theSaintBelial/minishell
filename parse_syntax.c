@@ -1,5 +1,7 @@
 #include "minishell.h"
 
+char **g_envp;
+
 void printtree(t_ast_tree *exectree, int t)
 {
 	if (exectree->left)
@@ -21,6 +23,22 @@ void printtree(t_ast_tree *exectree, int t)
 	// }
 }
 
+void		get_varieble(t_token **tmp)
+{
+	int i;
+	int j;
+
+	i = 0;
+	while (g_envp[i])
+	{
+		if (ft_strncmp(g_envp[i], (*tmp)->data, ft_strlen((*tmp)->data)) == 0)
+		{
+			// printf("LOL\n");
+		}
+		i++;
+	}
+}
+
 // // /*
 // // ** command arg ; comand arg ; .......
 // // */
@@ -28,11 +46,11 @@ void printtree(t_ast_tree *exectree, int t)
 void		check_left_right(t_ast_tree **node, t_token **tmp)
 {
 	if (check_lesser_bigger(*tmp) == 1)
-	  	*node = lesser_bigger_com_node(tmp, LESS_N, NONE);
+	  	*node = lesser_bigger_com_node(tmp, LESS_N, NONE, 0);
 	else if (check_lesser_bigger(*tmp) == 2)
-	  	*node = lesser_bigger_com_node(tmp, GREATER_N, NONE);
+	  	*node = lesser_bigger_com_node(tmp, GREATER_N, NONE, 0);
 	else if (check_lesser_bigger(*tmp) == 3)
-		*node = lesser_bigger_com_node(tmp, D_GREATER_N, NONE);
+		*node = lesser_bigger_com_node(tmp, D_GREATER_N, NONE, 0);
 	else
 		*node = arg_case(tmp, NONE);
 }
@@ -93,11 +111,11 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 	else if (check_pipe(list) == 1)
 		*tree = pipe_com_node(&list);
 	else if (check_lesser_bigger(list) == 1)
-		*tree = lesser_bigger_com_node(&list, LESS_N, NONE);
+		*tree = lesser_bigger_com_node(&list, LESS_N, NONE, 0);
 	else if (check_lesser_bigger(list) == 2)
-	 	*tree = lesser_bigger_com_node(&list, GREATER_N, NONE);
+	 	*tree = lesser_bigger_com_node(&list, GREATER_N, NONE, 0);
 	else if (check_lesser_bigger(list) == 3)
-	 	*tree = lesser_bigger_com_node(&list, D_GREATER_N, NONE);
+	 	*tree = lesser_bigger_com_node(&list, D_GREATER_N, NONE, 0);
 	else
 		*tree = arg_case(&list, NONE);
 	if (*tree != NULL)
@@ -108,10 +126,12 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 	return (0);
 }
 
-int			parse(t_parser *parser, t_ast_tree **tree)
+int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
 {
 	t_token 	*tmp;
+	t_ast_tree	**tmp_tree;
 
+	g_envp = env_buf;
 	tmp = parser->list;
 	if (check_grammer(tmp, tree) == 1);
 		// printf("SUCCESS!\n");
