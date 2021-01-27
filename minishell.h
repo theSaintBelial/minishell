@@ -109,19 +109,19 @@ typedef struct s_tree
 	struct s_tree	*right;
 }					t_ast_tree;
 
-typedef struct	s_task
+typedef struct	s_dirs
 {
-	bool		is_pipe_in;
-	bool		is_pipe_out;
-	int			pipe_in_fd;
-	int			pipe_out_fd;
-}				t_task;
+	bool		is_in;
+	bool		is_out;
+	int			in_fd;
+	int			out_fd;
+}				t_dirs;
 
 typedef struct	s_cmd
 {
 	char	**argv;
 	int		argc;
-	t_task	*config;
+	t_dirs	*pipes;
 	char	**in_out;
 	bool	rewrite;
 }				t_cmd;

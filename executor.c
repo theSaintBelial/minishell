@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/27 11:47:30 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/01/27 17:38:48 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,12 @@
 
 char	**envp;
 
-void	set_config(t_task *task)
+void	set_dirs_config(t_dirs *task)
 {
-	task->is_pipe_in = FALSE;
-	task->is_pipe_out = FALSE;
-	task->pipe_in_fd = 0;
-	task->pipe_out_fd = 0;
+	task->is_in = FALSE;
+	task->is_out = FALSE;
+	task->in_fd = 0;
+	task->out_fd = 0;
 }
 
 void	echo_exec(){}
@@ -36,7 +36,7 @@ void	pwd_exec(t_cmd *cmd)
 	{
 		if (cmd->in_out[1])
 			;
-		else if (cmd->config->is_pipe_out)
+		else if (cmd->pipes->is_out)
 			;
 
 		if ((dir = getcwd(NULL, 0)))
@@ -187,8 +187,8 @@ void	default_bin_exec(t_cmd *cmd)
 			}
 			dup2(fd, STDIN_FILENO);
 		}
-		else if (cmd->config->is_pipe_in)
-			dup2(cmd->config->pipe_in_fd, STDIN_FILENO);
+		else if (cmd->pipes->is_in)
+			dup2(cmd->pipes->in_fd, STDIN_FILENO);
 		if (cmd->in_out[1])
 		{
 			if (cmd->rewrite)
@@ -200,8 +200,8 @@ void	default_bin_exec(t_cmd *cmd)
 				exit(EXIT_FAILURE);
 			dup2(fd, STDOUT_FILENO);
 		}
-		else if (cmd->config->is_pipe_out)
-			dup2(cmd->config->pipe_out_fd, STDOUT_FILENO);
+		else if (cmd->pipes->is_out)
+			dup2(cmd->pipes->out_fd, STDOUT_FILENO);
 		if (!check_for_binary(cmd))
 		{
 			dup2(stdout_fd, STDOUT_FILENO);
@@ -237,7 +237,7 @@ void	cmd_exec(t_cmd *cmd)
 		default_bin_exec(cmd);
 }
 
-void	execute_task(t_ast_tree *root_ptr, t_task *config, char *in_out[2], bool rewrite)
+void	execute_task(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out, bool rewrite)
 {
 	t_ast_tree	*tmp;
 	int			i;
@@ -261,7 +261,7 @@ void	execute_task(t_ast_tree *root_ptr, t_task *config, char *in_out[2], bool re
 			tmp = tmp->right;
 		}
 		cmd.argc = i;
-		cmd.config = config;
+		cmd.pipes = pipes;
 		cmd.in_out = in_out;
 		cmd.rewrite = rewrite;
 		cmd_exec(&cmd);
@@ -269,68 +269,116 @@ void	execute_task(t_ast_tree *root_ptr, t_task *config, char *in_out[2], bool re
 }
 
 /*
-** EXECUTE JOB:
+** EXECUTE LINE:
 ** 		1) TASK < file
 ** 		2) TASK > file
 ** 		3) TASK >> file
 **		4) TASK
 */
 
-void	execute_job(t_ast_tree *root_ptr, t_task *config)
+void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
+{
+	int		fd;
+
+	if (root_ptr)
+	{
+		if (root_ptr->type == LESS_N)
+		{
+			fd = open(root_ptr->data, O_RDONLY);
+			in_out[0] = root_ptr->data;
+		}
+		else if (root_ptr->type == GREATER_N)
+		{
+			fd = open(root_ptr->data, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+			in_out[1] = root_ptr->data;
+			*rewrite = TRUE;
+		}
+		else if (root_ptr->type == D_GREATER_N)
+		{
+			fd = open(root_ptr->data, O_WRONLY | O_CREAT | O_APPEND, 0666);
+			in_out[1] = root_ptr->data;
+			*rewrite = FALSE;
+		}
+		if (fd == -1)
+		{
+			// error
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			exit(EXIT_FAILURE);
+		}
+		close(fd);
+	}
+}
+
+
+void	execute_iol(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
+{
+	if (root_ptr)
+	{
+		execute_io(root_ptr->left, in_out, rewrite);
+		if (root_ptr->right && root_ptr->right->type == IO_LIST_N)
+			execute_iol(root_ptr->right, in_out, rewrite);
+		else
+			execute_io(root_ptr->right, in_out, rewrite);
+	}
+}
+
+void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
+{
+	bool	rewrite;
+
+	rewrite = FALSE;
+	if (root_ptr->right && root_ptr->right->type == IO_LIST_N)
+		execute_iol(root_ptr->right, in_out, &rewrite);
+	else
+		execute_io(root_ptr->right, in_out, &rewrite);
+	execute_task(root_ptr->left, pipes, in_out, rewrite);
+}
+
+void	execute_job(t_ast_tree *root_ptr, t_dirs *pipes)
 {
 	char	*in_out[2];
 
-	in_out[0] = NULL;
-	in_out[1] = NULL;
-	if (root_ptr->type == LESS_N)
+	if (root_ptr)
 	{
-		in_out[0] = root_ptr->right->data;
-		execute_task(root_ptr->left, config, in_out, FALSE);
+		in_out[0] = NULL;
+		in_out[1] = NULL;
+		if (root_ptr->type == CMD_IO_N)
+			execute_cmd_io(root_ptr, pipes, in_out);
+		else
+			execute_task(root_ptr, pipes, in_out, FALSE);
 	}
-	else if (root_ptr->type == GREATER_N)
-	{
-		in_out[1] = root_ptr->right->data;
-		execute_task(root_ptr->left, config, in_out, TRUE);
-	}
-	else if (root_ptr->type == D_GREATER_N)
-	{
-		in_out[1] = root_ptr->right->data;
-		execute_task(root_ptr->left, config, in_out, FALSE);
-	}
-	else
-		execute_task(root_ptr, config, in_out, FALSE);
 }
 
-void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
+void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
 {
 	int			fd[2];
 	t_ast_tree	*tmp;
 
 	if (pipe(fd) == -1)
 		; // error
-	config->is_pipe_out = TRUE;
-	config->pipe_out_fd = fd[1];
-	execute_job(root_ptr->left, config);
+	pipes->is_out = TRUE;
+	pipes->out_fd = fd[1];
+	execute_job(root_ptr->left, pipes);
 	tmp = root_ptr->right;
 	while (tmp && tmp->type == PIPE_N)
 	{
-		close(config->pipe_out_fd);
-		config->is_pipe_in = TRUE;
-		config->pipe_in_fd = fd[0];
+		close(pipes->out_fd);
+		pipes->is_in = TRUE;
+		pipes->in_fd = fd[0];
 
 		if (pipe(fd) == -1)
 			; // error
-		config->is_pipe_out = TRUE;
-		config->pipe_out_fd = fd[1];
-		execute_job(tmp->left, config);
-		close(config->pipe_in_fd);
+		pipes->is_out = TRUE;
+		pipes->out_fd = fd[1];
+		execute_job(tmp->left, pipes);
+		close(pipes->in_fd);
 		tmp = tmp->right;
 	}
 	close(fd[1]);
-	set_config(config);
-	config->is_pipe_in = TRUE;
-	config->pipe_in_fd = fd[0];
-	execute_job(tmp, config);
+	set_dirs_config(pipes);
+	pipes->is_in = TRUE;
+	pipes->in_fd = fd[0];
+	execute_job(tmp, pipes);
 	close(fd[0]);
 }
 
@@ -342,15 +390,15 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_task *config)
 
 void	execute_command(t_ast_tree *root_ptr)
 {
-	t_task	config;
+	t_dirs	pipes;
 
-	set_config(&config);
+	set_dirs_config(&pipes);
 	if (root_ptr)
 	{
 		if (root_ptr->type == PIPE_N)
-			execute_job_pipe(root_ptr, &config);
+			execute_job_pipe(root_ptr, &pipes);
 		else
-			execute_job(root_ptr, &config);
+			execute_job(root_ptr, &pipes);
 	}
 }
 
