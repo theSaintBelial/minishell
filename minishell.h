@@ -60,6 +60,7 @@ enum 				e_ast_flags
 	LESS_N,
 	GREATER_N,
 	D_GREATER_N,
+	IO_LIST_N,
 	VARIEBLE_N,
 	NONE,
 };
@@ -125,15 +126,14 @@ typedef struct	s_cmd
 }				t_cmd;
 
 
-void				init_lst(t_token *tmp, int size);
+int					init_lst(t_token *tmp, int size);
 int					check_type_token(char type, t_token **tmp, t_vars *vars, int *i);
 void				check_all_tokens(t_token **tmp);
-void				init_new_node(t_token **tmp, int size);
-void				get_next_node(t_token **tmp, t_vars *vars, int *i);
-void				check_status(char type, t_token **tmp, t_vars *vars, int i);
+int					init_new_node(t_token **tmp, int size);
+int					get_next_node(t_token **tmp, t_vars *vars, int *i);
 int					parse(t_parser *parser, t_ast_tree **tree);
 t_ast_tree			*pipe_com_node(t_token **tmp);
-t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type);
+t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type, int ex_type);
 int					first_case_semicolon(t_token *list);
 int					check_pipe(t_token *list);
 int					check_lesser_bigger(t_token *list);
@@ -146,5 +146,8 @@ void				check_left_right(t_ast_tree **node, t_token **tmp);
 ** executor.c
 */
 void	executor(t_ast_tree *root_ptr, char **envp_buf);
+
+t_ast_tree			*command_node(t_token *list, int type);
+t_ast_tree			*arg_case_sec(t_token **lst, int type);
 
 #endif
