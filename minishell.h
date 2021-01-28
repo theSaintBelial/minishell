@@ -121,5 +121,7 @@ void				check_left_right(t_ast_tree **node, t_token **tmp);
 t_ast_tree			*command_node(t_token *list, int type);
 t_ast_tree			*arg_case_sec(t_token **lst, int type);
 void				get_variable(t_token **tmp);
+void				del_parser(t_parser *parser, char *str, char type);
+void				del_token(t_token *tmp);
 
 #endif

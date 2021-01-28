@@ -1,16 +1,25 @@
 #include "minishell.h"
 
-int		err(t_parser *parser)
+void	del_token(t_token *tmp)
 {
+	if (tmp != NULL)
+	{
+		if (tmp->data)
+			free(tmp->data);
+		del_token(tmp->next);
+		free(tmp);
+	}
+}
+
+void	del_parser(t_parser *parser, char *str, char type)
+{
+	if (str != NULL)
+		free(str);
 	if (parser != NULL)
 	{
-		while (parser->list != NULL)
-		{
-			if (parser->list->data != NULL)
-				free(parser->list->data);
-			free(parser->list);
-			parser->list = parser->list->next;
-		}
+		if (type == 'a')
+			if (parser->list)
+				free(parser->list);
 		free(parser);
 	}
 	ft_putstr_fd("ERROR\n", 1);
@@ -62,16 +71,21 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 	int			i;
 
 	if (!(parser->list = malloc(sizeof(t_token))))
-		err(parser);
+		del_parser(parser, vars->line, 'a');
 	tmp = parser->list;
 	if (!(init_lst(tmp, ft_strlen(vars->line))))
-		err(parser);
+		del_parser(parser, vars->line, 'a');
 	vars->count = 0;
 	i = 0;
 	while (vars->line[i])
 	{
 		type = get_token(vars->line[i]);
-		check_type_token(type, &tmp, vars, &i);
+		if (check_type_token(type, &tmp, vars, &i) == 0)
+		{
+			tmp = parser->list;
+			del_token(tmp);
+			del_parser(parser, vars->line, 'o');
+		}
 		i++;
 	}
 	tmp = parser->list;
@@ -87,7 +101,7 @@ int		main(int argc, char **argv, char **envp)
 	vars.line = NULL;
 	vars.checker = TRUE;
 	if (!(parser = malloc(sizeof(t_parser))))
-		err(parser);
+		del_parser(parser, NULL, 'a');
 	tree = NULL;
 	while(vars.checker)
 	{
@@ -98,9 +112,10 @@ int		main(int argc, char **argv, char **envp)
 			ft_putstr_fd(PROMPT, STDOUT_FILENO);
 			vars.gnl_check = get_next_line(STDIN_FILENO, &(vars.line));
 			if (vars.gnl_check == -1)
-				err(parser);
+				del_parser(parser, vars.line, 'a');
 		}
 		lexical_analysis(&vars, parser);
+		free(vars.line);
 		parse(parser, &tree, envp);
 		vars.checker = FALSE;
 	}

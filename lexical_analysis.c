@@ -71,24 +71,27 @@ int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 	{
 		(*tmp)->data[vars->count++] = vars->line[(*i)];
 		(*tmp)->type = TOKEN;
-		return (0);
+		return (1);
 	}
 	if (type == SPACE)
 	{
 		if (vars->count > 0)
-			get_next_node(tmp, vars, i);
-		return (0);
+			if (get_next_node(tmp, vars, i) == 0)
+				return (0);
+		return (1);
 	}
 	if (type == SEMICOLON || type == PIPE
 	|| type == GREATER_THEN || type == LESS_THEN || type == DOLLAR)
 	{
 		if (vars->count > 0)
-			get_next_node(tmp, vars, i);
+			if (get_next_node(tmp, vars, i) == 0)
+				return (0);
 		(*tmp)->data[0] = type;
 		(*tmp)->data[1] = '\0';
 		(*tmp)->type = type;
-		init_new_node(tmp, (ft_strlen(vars->line) - (*i)));
-		return (0);
+		if (!(init_new_node(tmp, (ft_strlen(vars->line) - (*i)))))
+			return (0);
+		return (1);
 	}
 	else
 		return (another_special_tokens(type, tmp, vars, i));

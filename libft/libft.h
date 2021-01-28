@@ -33,7 +33,8 @@ char				*ft_strmapi(char const *s, char (*f)(unsigned int, char));
 size_t				ft_strlen(const char *str);
 size_t				ft_strlcpy(char *dst, const char *src, size_t size);
 size_t				ft_strlcat(char *dst, const char *src, size_t size);
-char				*ft_strjoin(char const *s1, char const *s2);
+char					*ft_strjoin(char const *s1, char const *s2);
+
 char				*ft_strdup(const char *str);
 char				*ft_strchr(const char *str, int ch);
 char				**ft_split(char const *s, char c);

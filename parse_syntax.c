@@ -141,10 +141,17 @@ int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
 	tmp = parser->list;
 	if (check_grammer(tmp, tree) == 1)
 	{
-
 		printf("SUCCESS!\n");
+		tmp = parser->list;
+		del_token(tmp);
+		del_parser(parser, NULL, 'o');
 	}
 	else
+	{
 		printf("ERROR\n");
+		tmp = parser->list;
+		del_token(tmp);
+		del_parser(parser, NULL, 'o');
+	}
 	return (0);
 }

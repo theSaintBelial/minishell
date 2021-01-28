@@ -4,7 +4,8 @@ t_ast_tree	*set_node(char *data, int type, t_ast_tree *left, t_ast_tree *right)
 {
 	t_ast_tree *cmd;
 
-	cmd = malloc(sizeof(*cmd));
+	if (!(cmd = malloc(sizeof(*cmd))))
+		return NULL;
 	cmd->type = type;
 	if (data != NULL)
 		cmd->data = data;
