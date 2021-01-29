@@ -21,7 +21,8 @@ t_ast_tree	*pipe_com_node(t_token **tmp)
 	return (cmd);
 }
 
-t_ast_tree	*lesser_bigger_com_node(t_token **tmp, int type, int ex_type, int flag)
+t_ast_tree	*lesser_bigger_com_node(t_token **tmp, int type,
+									int ex_type, int flag)
 {
 	t_ast_tree *cmd;
 	t_ast_tree *left;
@@ -45,11 +46,9 @@ t_ast_tree	*lesser_bigger_com_node(t_token **tmp, int type, int ex_type, int fla
 	if (right == NULL || left == NULL)
 		return (NULL);
 	if (flag == 0)
-		cmd = set_node(NULL, CMD_IO_N, left, right);
+		return (cmd = set_node(NULL, CMD_IO_N, left, right));
 	else
-		cmd = set_node(NULL, IO_LIST_N, left, right);
-	flag = 1;
-	return (cmd);
+		return (cmd = set_node(NULL, IO_LIST_N, left, right));
 }
 
 int			first_case_semicolon(t_token *list)

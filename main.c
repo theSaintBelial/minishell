@@ -1,31 +1,5 @@
 #include "minishell.h"
 
-void	del_token(t_token *tmp)
-{
-	if (tmp != NULL)
-	{
-		if (tmp->data)
-			free(tmp->data);
-		del_token(tmp->next);
-		free(tmp);
-	}
-}
-
-void	del_parser(t_parser *parser, char *str, char type)
-{
-	if (str != NULL)
-		free(str);
-	if (parser != NULL)
-	{
-		if (type == 'a')
-			if (parser->list)
-				free(parser->list);
-		free(parser);
-	}
-	ft_putstr_fd("ERROR\n", 1);
-	exit(0);
-}
-
 char	get_token_sec(char c)
 {
 	if (c == ENTER)
@@ -66,7 +40,7 @@ char	get_token(char c)
 
 int		lexical_analysis(t_vars *vars, t_parser *parser)
 {
-	t_token 	*tmp;
+	t_token		*tmp;
 	char		type;
 	int			i;
 
@@ -100,10 +74,12 @@ int		main(int argc, char **argv, char **envp)
 
 	vars.line = NULL;
 	vars.checker = TRUE;
+	(void)argc;
+	(void)argv[0];
 	if (!(parser = malloc(sizeof(t_parser))))
 		del_parser(parser, NULL, 'a');
 	tree = NULL;
-	while(vars.checker)
+	while (vars.checker)
 	{
 		vars.loop = TRUE;
 		while (vars.loop)

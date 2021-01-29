@@ -2,7 +2,7 @@
 
 char **g_envp;
 
-void printtree(t_ast_tree *exectree, int t)
+void		printtree(t_ast_tree *exectree, int t)
 {
 	if (exectree->left)
 		printtree((exectree)->left, t+1);
@@ -25,17 +25,17 @@ void printtree(t_ast_tree *exectree, int t)
 
 void		get_variable(t_token **tmp)
 {
-	int i;
-	int len;
-	char *str;
+	int		i;
+	int		len;
+	char	*str;
 
 	i = 0;
 	len = ft_strlen((*tmp)->data);
 	while (g_envp[i])
 	{
 		if (ft_strncmp(g_envp[i], (*tmp)->data, len) == 0)
-	 	{
-	 		str = ft_strdup(g_envp[i]);
+		{
+			str = ft_strdup(g_envp[i]);
 			free((*tmp)->data);
 			(*tmp)->data = ft_strdup(str + (len + 1));
 			free(str);
@@ -45,23 +45,8 @@ void		get_variable(t_token **tmp)
 	}
 }
 
-// // /*
-// // ** command arg ; comand arg ; .......
-// // */
-
-void		check_left_right(t_ast_tree **node, t_token **tmp)
-{
-	if (check_lesser_bigger(*tmp) == 1)
-	  	*node = lesser_bigger_com_node(tmp, LESS_N, NONE, 0);
-	else if (check_lesser_bigger(*tmp) == 2)
-	  	*node = lesser_bigger_com_node(tmp, GREATER_N, NONE, 0);
-	else if (check_lesser_bigger(*tmp) == 3)
-		*node = lesser_bigger_com_node(tmp, D_GREATER_N, NONE, 0);
-	else
-		*node = arg_case(tmp, NONE);
-}
-
-void		sec_comm_node(t_token **tmp, t_ast_tree **left, t_ast_tree **right, char type)
+void		sec_comm_node(t_token **tmp, t_ast_tree **left,
+							t_ast_tree **right, char type)
 {
 	if (type == 'l')
 	{
@@ -81,16 +66,16 @@ void		sec_comm_node(t_token **tmp, t_ast_tree **left, t_ast_tree **right, char t
 			*right = pipe_com_node(tmp);
 		else
 			check_left_right(right, tmp);
-		return ;	
+		return ;
 	}
 }
 
 t_ast_tree	*command_node(t_token *list, int type)
 {
-	t_token *tmp;
-	t_ast_tree *cmd;
-	t_ast_tree *left;
-	t_ast_tree *right;
+	t_token			*tmp;
+	t_ast_tree		*cmd;
+	t_ast_tree		*left;
+	t_ast_tree		*right;
 
 	left = NULL;
 	right = NULL;
@@ -119,9 +104,9 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 	else if (check_lesser_bigger(list) == 1)
 		*tree = lesser_bigger_com_node(&list, LESS_N, NONE, 0);
 	else if (check_lesser_bigger(list) == 2)
-	 	*tree = lesser_bigger_com_node(&list, GREATER_N, NONE, 0);
+		*tree = lesser_bigger_com_node(&list, GREATER_N, NONE, 0);
 	else if (check_lesser_bigger(list) == 3)
-	 	*tree = lesser_bigger_com_node(&list, D_GREATER_N, NONE, 0);
+		*tree = lesser_bigger_com_node(&list, D_GREATER_N, NONE, 0);
 	else
 		*tree = arg_case(&list, NONE);
 	if (*tree != NULL)
@@ -134,8 +119,7 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 
 int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
 {
-	t_token 	*tmp;
-	t_ast_tree	**tmp_tree;
+	t_token		*tmp;
 
 	g_envp = env_buf;
 	tmp = parser->list;

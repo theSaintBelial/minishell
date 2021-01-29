@@ -15,10 +15,11 @@ int	check_spec_symb(char type, t_token **tmp, t_vars *vars, int *i)
 			(*tmp)->type = TOKEN;
 			return (0);
 		}
-		(*tmp)->data[vars->count] =  vars->line[(*i)];
+		(*tmp)->data[vars->count] = vars->line[(*i)];
 		vars->count++;
 		(*i)++;
 	}
+	return (0);
 }
 
 int	check_spec_symb_sec(char type, t_token **tmp, t_vars *vars, int *i)
@@ -27,7 +28,7 @@ int	check_spec_symb_sec(char type, t_token **tmp, t_vars *vars, int *i)
 	while (vars->line[(*i)])
 	{
 		if (vars->line[(*i)++] == DOUBLE_SLASH)
-			(*tmp)->data[vars->count] =  vars->line[(*i)];
+			(*tmp)->data[vars->count] = vars->line[(*i)];
 		else
 			(*i)--;
 		if (vars->line[(*i)] == type)
@@ -35,14 +36,21 @@ int	check_spec_symb_sec(char type, t_token **tmp, t_vars *vars, int *i)
 			(*tmp)->type = TOKEN;
 			return (0);
 		}
-		(*tmp)->data[vars->count] =  vars->line[(*i)];
+		(*tmp)->data[vars->count] = vars->line[(*i)];
 		vars->count++;
 		(*i)++;
 	}
+	return (0);
 }
 
 int	another_special_tokens(char type, t_token **tmp, t_vars *vars, int *i)
 {
+	if (type == C_CHAR)
+	{
+		(*tmp)->data[vars->count++] = vars->line[(*i)];
+		(*tmp)->type = TOKEN;
+		return (1);
+	}
 	if (type == F_SLASH)
 	{
 		check_spec_symb(type, tmp, vars, i);
@@ -67,12 +75,6 @@ int	another_special_tokens(char type, t_token **tmp, t_vars *vars, int *i)
 
 int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 {
-	if (type == C_CHAR)
-	{
-		(*tmp)->data[vars->count++] = vars->line[(*i)];
-		(*tmp)->type = TOKEN;
-		return (1);
-	}
 	if (type == SPACE)
 	{
 		if (vars->count > 0)
