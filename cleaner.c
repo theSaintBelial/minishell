@@ -22,6 +22,4 @@ void	del_parser(t_parser *parser, char *str, char type)
 				free(parser->list);
 		free(parser);
 	}
-	ft_putstr_fd("ERROR\n", 1);
-	exit(0);
 }
