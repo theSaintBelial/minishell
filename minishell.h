@@ -33,6 +33,8 @@
 /*
 ** STATUS OF FORWARD SLASH
 */
+// char **g_envp;
+
 
 typedef short		bool;
 
@@ -152,5 +154,9 @@ t_ast_tree			*command_node(t_token *list, int type);
 t_ast_tree			*arg_case_sec(t_token **lst, int type);
 void				get_varieble(t_token **tmp);
 
+/*
+** free.c
+*/
+void				free_tree(t_ast_tree **root);
 
 #endif

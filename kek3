@@ -1,3 +1,4 @@
+kek
 #include "minishell.h"
 
 int		err(t_parser *parser)

@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/01/27 17:38:48 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/02 15:12:24 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,36 +22,97 @@ void	set_dirs_config(t_dirs *task)
 	task->out_fd = 0;
 }
 
-void	echo_exec(){}
+void	echo_exec(t_cmd *cmd)
+{
+	int		fd;
+	char	*str;
+	int		i;
+	int		func_n;
+	void	(*funcs[2])(char *, int);
+	int		stdout_fd;
+
+	funcs[0] = ft_putstr_fd;
+	funcs[1] = ft_putendl_fd;
+	stdout_fd = dup(STDOUT_FILENO);
+	if (cmd->in_out[1])
+	{
+		if (cmd->rewrite)
+			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		else
+			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
+		if (fd == -1)
+			// error;
+			exit(EXIT_FAILURE);
+		dup2(fd, STDOUT_FILENO);
+		close(fd);
+	}
+	else if (cmd->pipes->is_out)
+	{
+		dup2(cmd->pipes->out_fd, STDOUT_FILENO);
+		close(cmd->pipes->out_fd);
+	}
+	i = 1;
+	func_n = 0;
+	if (ft_strncmp(cmd->argv[i], "-n", 2))
+		func_n = 1;
+	!func_n ? i++ : 0;
+	while (cmd->argv[i])
+	{
+		str = (cmd->argv[i] ? cmd->argv[i] : "");
+		ft_putstr_fd(cmd->argv[i], STDOUT_FILENO);
+		i++;
+		if (cmd->argv[i])
+			ft_putstr_fd(" ", STDOUT_FILENO);
+	}
+	(*funcs[func_n])("", STDOUT_FILENO);
+	// free all
+	dup2(stdout_fd, STDOUT_FILENO);
+	close(stdout_fd);
+}
 
 void	pwd_exec(t_cmd *cmd)
 {
 	char	*dir;
 	pid_t	pid;
+	int		fd;
+	int		stdout_fd;
 
 	pid = fork();
 	if (pid < 0)
 		; // error
 	else if (pid == 0)
 	{
+		stdout_fd = dup(STDOUT_FILENO);
 		if (cmd->in_out[1])
-			;
+		{
+			if (cmd->rewrite)
+				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+			else
+				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
+			if (fd == -1)
+				// error;
+				exit(EXIT_FAILURE);
+			dup2(fd, STDOUT_FILENO);
+			close(fd);
+		}
 		else if (cmd->pipes->is_out)
-			;
-
+		{
+			dup2(cmd->pipes->out_fd, STDOUT_FILENO);
+			close(cmd->pipes->out_fd);
+		}
 		if ((dir = getcwd(NULL, 0)))
 		{
 			ft_putendl_fd(dir, STDOUT_FILENO);
 			free(dir);
 		}
 		else
-			;
-		exit(EXIT_SUCCESS);
+			; // error
+		dup2(stdout_fd, STDOUT_FILENO);
+		close(stdout_fd);
 	}
 	else
 		while (waitpid(pid, NULL, 0) <= 0)
 			;
-
 }
 
 char	*get_current_home_path()
@@ -80,7 +141,6 @@ void	cd_exec(t_cmd *cmd)
 		ft_putendl_fd("cd: Too many arguments", 2);
 	else if (cmd->argc == 1)
 	{
-		// get to home
 		current_home_path = get_current_home_path();
 		if (chdir(current_home_path))
 			// error
@@ -171,7 +231,7 @@ void	default_bin_exec(t_cmd *cmd)
 	pid = fork();
 	if (pid == -1)
 	{
-		perror("fork");
+		perror("fork"); // error
 		exit(EXIT_FAILURE);
 	}
 	else if (pid == 0)
@@ -182,13 +242,17 @@ void	default_bin_exec(t_cmd *cmd)
 			if ((fd = open(cmd->in_out[0], O_RDONLY)) == -1)
 			{
 				// error;
-				ft_putendl_fd(strerror(errno), STDERR_FILENO);
+				// ft_putendl_fd(strerror(errno), STDERR_FILENO);
 				exit(EXIT_FAILURE);
 			}
 			dup2(fd, STDIN_FILENO);
+			close(fd);
 		}
 		else if (cmd->pipes->is_in)
+		{
 			dup2(cmd->pipes->in_fd, STDIN_FILENO);
+			close(cmd->pipes->in_fd);
+		}
 		if (cmd->in_out[1])
 		{
 			if (cmd->rewrite)
@@ -199,13 +263,18 @@ void	default_bin_exec(t_cmd *cmd)
 				// error;
 				exit(EXIT_FAILURE);
 			dup2(fd, STDOUT_FILENO);
+			close(fd);
 		}
 		else if (cmd->pipes->is_out)
+		{
 			dup2(cmd->pipes->out_fd, STDOUT_FILENO);
+			close(cmd->pipes->out_fd);
+		}
 		if (!check_for_binary(cmd))
 		{
 			dup2(stdout_fd, STDOUT_FILENO);
-			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			close(stdout_fd);
+			// ft_putendl_fd(strerror(errno), STDERR_FILENO); // kekekekekkekeke
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -220,7 +289,7 @@ void	cmd_exec(t_cmd *cmd)
 
 	bin = cmd->argv[0];
 	if (!ft_strncmp(bin, "echo", 10))
-		echo_exec();
+		echo_exec(cmd);
 	else if (!ft_strncmp(bin, "cd", 10))
 		cd_exec(cmd);
 	else if (!ft_strncmp(bin, "pwd", 10))
@@ -265,6 +334,15 @@ void	execute_task(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out, bool rewri
 		cmd.in_out = in_out;
 		cmd.rewrite = rewrite;
 		cmd_exec(&cmd);
+
+// free argv
+		i = 0;
+		while (cmd.argv[i])
+		{
+			free(cmd.argv[i]);
+			i++;
+		}
+		free(cmd.argv);
 	}
 }
 
@@ -302,7 +380,7 @@ void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 		if (fd == -1)
 		{
 			// error
-			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			// ft_putendl_fd(strerror(errno), STDERR_FILENO);
 			exit(EXIT_FAILURE);
 		}
 		close(fd);
@@ -430,4 +508,5 @@ void	executor(t_ast_tree *root_ptr, char **envp_buf)
 {
 	envp = envp_buf;
 	execute_line(root_ptr);
+	free_tree(&root_ptr);
 }
