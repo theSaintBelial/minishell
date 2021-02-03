@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/02 15:12:24 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/03 13:00:29 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,42 +77,33 @@ void	pwd_exec(t_cmd *cmd)
 	int		fd;
 	int		stdout_fd;
 
-	pid = fork();
-	if (pid < 0)
-		; // error
-	else if (pid == 0)
+	stdout_fd = dup(STDOUT_FILENO);
+	if (cmd->in_out[1])
 	{
-		stdout_fd = dup(STDOUT_FILENO);
-		if (cmd->in_out[1])
-		{
-			if (cmd->rewrite)
-				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-			else
-				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
-			if (fd == -1)
-				// error;
-				exit(EXIT_FAILURE);
-			dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
-		else if (cmd->pipes->is_out)
-		{
-			dup2(cmd->pipes->out_fd, STDOUT_FILENO);
-			close(cmd->pipes->out_fd);
-		}
-		if ((dir = getcwd(NULL, 0)))
-		{
-			ft_putendl_fd(dir, STDOUT_FILENO);
-			free(dir);
-		}
+		if (cmd->rewrite)
+			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
 		else
-			; // error
-		dup2(stdout_fd, STDOUT_FILENO);
-		close(stdout_fd);
+			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
+		if (fd == -1)
+			// error;
+			exit(EXIT_FAILURE);
+		dup2(fd, STDOUT_FILENO);
+		close(fd);
+	}
+	else if (cmd->pipes->is_out)
+	{
+		dup2(cmd->pipes->out_fd, STDOUT_FILENO);
+		close(cmd->pipes->out_fd);
+	}
+	if ((dir = getcwd(NULL, 0)))
+	{
+		ft_putendl_fd(dir, STDOUT_FILENO);
+		free(dir);
 	}
 	else
-		while (waitpid(pid, NULL, 0) <= 0)
-			;
+		; // error
+	dup2(stdout_fd, STDOUT_FILENO);
+	close(stdout_fd);
 }
 
 char	*get_current_home_path()
@@ -301,10 +292,32 @@ void	cmd_exec(t_cmd *cmd)
 	else if (!ft_strncmp(bin, "env", 10))
 		env_exec();
 	else if (!ft_strncmp(bin, "exit", 10))
+	{
+		printf("Kekekek\n");
 		exit(EXIT_SUCCESS);
+	}
 	else
 		default_bin_exec(cmd);
 }
+
+void	cmd_config_print(t_cmd *cmd)
+{
+	if (cmd)
+	{
+		printf("ARGV: \n");
+		for (int i = 0; cmd->argv[i]; i++)
+			printf("\t[%d]: %s\n", i, cmd->argv[i]);
+
+		printf("PIPES:\n");
+		printf("\tPIPE_IN: %d %d\n", cmd->pipes->is_in, cmd->pipes->in_fd);
+		printf("\tPIPE_OUT: %d %d\n", cmd->pipes->is_out, cmd->pipes->out_fd);
+
+		printf("IN_OUT:\n");
+		printf("\tIN: %s\n", cmd->in_out[0]);
+		printf("\tOUT: %s\n\n", cmd->in_out[1]);
+	}
+}
+
 
 void	execute_task(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out, bool rewrite)
 {
@@ -333,6 +346,9 @@ void	execute_task(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out, bool rewri
 		cmd.pipes = pipes;
 		cmd.in_out = in_out;
 		cmd.rewrite = rewrite;
+
+		cmd_config_print(&cmd);
+
 		cmd_exec(&cmd);
 
 // free argv

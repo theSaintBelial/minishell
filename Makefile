@@ -1,6 +1,6 @@
 
 SRCS = 	main.c lexical_analysis.c parse_syntax.c struct_init.c \
-		token_checker.c create_tree.c executor.c free.c \
+		token_checker.c create_tree.c executor.c free.c cleaner.c \
 		gnl/get_next_line.c gnl/get_next_line_utils.c
 
 OBJS = $(*.o)
