@@ -31,10 +31,11 @@ int		init_new_node(t_token **tmp, int size)
 ** INIT NEW NODE OF TOKENS LIST
 */
 
-int		get_next_node(t_token **tmp, t_vars *vars, int *i)
+int		get_next_node(t_token **tmp, t_vars *vars, int i)
 {
 	(*tmp)->data[vars->count] = '\0';
-	if (!(init_new_node(tmp, new_strlen(vars->line + (*i)))))
+	i++;
+	if (!(init_new_node(tmp, new_strlen(vars->line + i))))
 		return (0);
 	vars->count = 0;
 	return (1);

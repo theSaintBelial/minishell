@@ -98,7 +98,7 @@ int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 	if (type == SPACE)
 	{
 		if (vars->count > 0)
-			if (get_next_node(tmp, vars, i) == 0)
+			if (get_next_node(tmp, vars, *i) == 0)
 				return (0);
 		return (1);
 	}
@@ -106,7 +106,7 @@ int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 	|| type == GREATER_THEN || type == LESS_THEN || type == DOLLAR)
 	{
 		if (vars->count > 0)
-			if (get_next_node(tmp, vars, i) == 0)
+			if (get_next_node(tmp, vars, *i) == 0)
 				return (0);
 		(*tmp)->data[0] = type;
 		(*tmp)->data[1] = '\0';

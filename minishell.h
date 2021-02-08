@@ -11,6 +11,7 @@
 # include <sys/wait.h>
 # include <string.h>
 # include <errno.h>
+# include <signal.h>
 
 # define PIPE '|'
 # define DOLLAR '$'
@@ -121,9 +122,6 @@ typedef struct	s_cmd
 {
 	char	**argv;
 	int		argc;
-	t_dirs	*pipes;
-	char	**in_out;
-	bool	rewrite;
 }				t_cmd;
 
 int					new_strlen(char *str);
@@ -132,7 +130,7 @@ int					check_type_token(char type, t_token **tmp,
 									t_vars *vars, int *i);
 void				check_all_tokens(t_token **tmp);
 int					init_new_node(t_token **tmp, int size);
-int					get_next_node(t_token **tmp, t_vars *vars, int *i);
+int					get_next_node(t_token **tmp, t_vars *vars, int i);
 int					parse(t_parser *parser, t_ast_tree **tree, char **env_buf);
 t_ast_tree			*pipe_com_node(t_token **tmp);
 t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type,

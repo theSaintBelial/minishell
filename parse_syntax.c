@@ -116,7 +116,7 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 		*tree = arg_case(&list, NONE);
 	if (*tree != NULL)
 	{
-		printtree(*tree, 0);
+		// printtree(*tree, 0);
 		return 1;
 	}
 	return (0);
@@ -131,7 +131,7 @@ int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
 
 	if (check_grammer(tmp, tree) == 1)
 	{
-		printf("SUCCESS!\n");
+		// printf("SUCCESS!\n");
 		tmp = parser->list;
 		del_token(&tmp);
 		//del_parser(parser, NULL, 'o');
@@ -145,3 +145,4 @@ int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
 	}
 	return (0);
 }
+ 

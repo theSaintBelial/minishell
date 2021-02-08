@@ -6,55 +6,36 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/03 13:00:29 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/06 17:26:15 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 char	**envp;
+int		g_code;
 
-void	set_dirs_config(t_dirs *task)
+void	set_dirs_config(t_dirs *config)
 {
-	task->is_in = FALSE;
-	task->is_out = FALSE;
-	task->in_fd = 0;
-	task->out_fd = 0;
+	config->is_in = FALSE;
+	config->is_out = FALSE;
+	config->in_fd = 0;
+	config->out_fd = 0;
 }
 
 void	echo_exec(t_cmd *cmd)
 {
-	int		fd;
 	char	*str;
 	int		i;
 	int		func_n;
 	void	(*funcs[2])(char *, int);
-	int		stdout_fd;
 
 	funcs[0] = ft_putstr_fd;
 	funcs[1] = ft_putendl_fd;
-	stdout_fd = dup(STDOUT_FILENO);
-	if (cmd->in_out[1])
-	{
-		if (cmd->rewrite)
-			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-		else
-			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
-		if (fd == -1)
-			// error;
-			exit(EXIT_FAILURE);
-		dup2(fd, STDOUT_FILENO);
-		close(fd);
-	}
-	else if (cmd->pipes->is_out)
-	{
-		dup2(cmd->pipes->out_fd, STDOUT_FILENO);
-		close(cmd->pipes->out_fd);
-	}
 	i = 1;
-	func_n = 0;
-	if (ft_strncmp(cmd->argv[i], "-n", 2))
-		func_n = 1;
+	func_n = 1;
+	if (cmd->argc > 1 && !ft_strncmp(cmd->argv[i], "-n", 2))
+		func_n = 0;
 	!func_n ? i++ : 0;
 	while (cmd->argv[i])
 	{
@@ -66,35 +47,13 @@ void	echo_exec(t_cmd *cmd)
 	}
 	(*funcs[func_n])("", STDOUT_FILENO);
 	// free all
-	dup2(stdout_fd, STDOUT_FILENO);
-	close(stdout_fd);
 }
 
 void	pwd_exec(t_cmd *cmd)
 {
 	char	*dir;
 	pid_t	pid;
-	int		fd;
-	int		stdout_fd;
 
-	stdout_fd = dup(STDOUT_FILENO);
-	if (cmd->in_out[1])
-	{
-		if (cmd->rewrite)
-			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-		else
-			fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
-		if (fd == -1)
-			// error;
-			exit(EXIT_FAILURE);
-		dup2(fd, STDOUT_FILENO);
-		close(fd);
-	}
-	else if (cmd->pipes->is_out)
-	{
-		dup2(cmd->pipes->out_fd, STDOUT_FILENO);
-		close(cmd->pipes->out_fd);
-	}
 	if ((dir = getcwd(NULL, 0)))
 	{
 		ft_putendl_fd(dir, STDOUT_FILENO);
@@ -102,8 +61,6 @@ void	pwd_exec(t_cmd *cmd)
 	}
 	else
 		; // error
-	dup2(stdout_fd, STDOUT_FILENO);
-	close(stdout_fd);
 }
 
 char	*get_current_home_path()
@@ -171,7 +128,7 @@ char	**handle_path_dirs()
 	return (NULL);
 }
 
-bool	check_for_binary(t_cmd *cmd)
+bool	check_for_binary(t_cmd *cmd, int *status)
 {
 	char	**path_dirs;
 	int		i;
@@ -198,14 +155,14 @@ bool	check_for_binary(t_cmd *cmd)
 			// free path_dirs
 			return (FALSE);
 		}
-		if (execve(full_bin, cmd->argv, envp) != -1)
+		if ((*status = execve(full_bin, cmd->argv, envp)) == -1)
 		{
 			// free all
-			return (TRUE);
+			;
 		}
 		i++;
 	}
-	if (execve(cmd->argv[0], cmd->argv, envp) == -1)
+	if ((*status = execve(cmd->argv[0], cmd->argv, envp)) == -1)
 	{
 		; // error
 		return (FALSE);
@@ -213,65 +170,57 @@ bool	check_for_binary(t_cmd *cmd)
 	return (TRUE);
 }
 
+int			status_return(int status)
+{
+	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == 2)
+			return (130);
+		if (WTERMSIG(status) == 3)
+			return (131);
+		if (WTERMSIG(status) == 15)
+			return (143);
+	}
+	return (WEXITSTATUS(status));
+}
+
 void	default_bin_exec(t_cmd *cmd)
 {
 	pid_t	pid;
-	int		stdout_fd;
-	int		fd;
+	int		status;
 
 	pid = fork();
-	if (pid == -1)
+	if (pid < 0)
 	{
 		perror("fork"); // error
 		exit(EXIT_FAILURE);
 	}
 	else if (pid == 0)
 	{
-		stdout_fd = dup(STDOUT_FILENO);
-		if (cmd->in_out[0])
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGTERM, SIG_DFL);
+		if (!check_for_binary(cmd, &status))
 		{
-			if ((fd = open(cmd->in_out[0], O_RDONLY)) == -1)
-			{
-				// error;
-				// ft_putendl_fd(strerror(errno), STDERR_FILENO);
-				exit(EXIT_FAILURE);
-			}
-			dup2(fd, STDIN_FILENO);
-			close(fd);
-		}
-		else if (cmd->pipes->is_in)
-		{
-			dup2(cmd->pipes->in_fd, STDIN_FILENO);
-			close(cmd->pipes->in_fd);
-		}
-		if (cmd->in_out[1])
-		{
-			if (cmd->rewrite)
-				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-			else
-				fd = open(cmd->in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
-			if (fd == -1)
-				// error;
-				exit(EXIT_FAILURE);
-			dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
-		else if (cmd->pipes->is_out)
-		{
-			dup2(cmd->pipes->out_fd, STDOUT_FILENO);
-			close(cmd->pipes->out_fd);
-		}
-		if (!check_for_binary(cmd))
-		{
-			dup2(stdout_fd, STDOUT_FILENO);
-			close(stdout_fd);
-			// ft_putendl_fd(strerror(errno), STDERR_FILENO); // kekekekekkekeke
-			exit(EXIT_FAILURE);
+			// for (int i = 0; cmd->argv[i]; i++)
+			// 	printf("[%d]: {%s}\n", i, cmd->argv[i]);
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			exit(WEXITSTATUS(status));
 		}
 	}
 	else
-		while (waitpid(pid, NULL, 0) <= 0)
-			;
+	{
+		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
+		signal(SIGTERM, SIG_IGN);
+		pid = waitpid(pid, &status, WUNTRACED);
+		if ((g_code = status_return(status)) == 130)
+			write(2, "\n", 1);
+		if (g_code == 131)
+			write(2, "Quit: 3\n", 8);
+		if (g_code == 143)
+			write(2, "terminated\n", 11);
+	}
 }
 
 void	cmd_exec(t_cmd *cmd)
@@ -300,26 +249,7 @@ void	cmd_exec(t_cmd *cmd)
 		default_bin_exec(cmd);
 }
 
-void	cmd_config_print(t_cmd *cmd)
-{
-	if (cmd)
-	{
-		printf("ARGV: \n");
-		for (int i = 0; cmd->argv[i]; i++)
-			printf("\t[%d]: %s\n", i, cmd->argv[i]);
-
-		printf("PIPES:\n");
-		printf("\tPIPE_IN: %d %d\n", cmd->pipes->is_in, cmd->pipes->in_fd);
-		printf("\tPIPE_OUT: %d %d\n", cmd->pipes->is_out, cmd->pipes->out_fd);
-
-		printf("IN_OUT:\n");
-		printf("\tIN: %s\n", cmd->in_out[0]);
-		printf("\tOUT: %s\n\n", cmd->in_out[1]);
-	}
-}
-
-
-void	execute_task(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out, bool rewrite)
+void	execute_config(t_ast_tree *root_ptr)
 {
 	t_ast_tree	*tmp;
 	int			i;
@@ -343,15 +273,10 @@ void	execute_task(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out, bool rewri
 			tmp = tmp->right;
 		}
 		cmd.argc = i;
-		cmd.pipes = pipes;
-		cmd.in_out = in_out;
-		cmd.rewrite = rewrite;
-
-		cmd_config_print(&cmd);
-
+		// cmd_config_print(&cmd);
 		cmd_exec(&cmd);
 
-// free argv
+		// free argv
 		i = 0;
 		while (cmd.argv[i])
 		{
@@ -364,10 +289,10 @@ void	execute_task(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out, bool rewri
 
 /*
 ** EXECUTE LINE:
-** 		1) TASK < file
-** 		2) TASK > file
-** 		3) TASK >> file
-**		4) TASK
+** 		1) config < file
+** 		2) config > file
+** 		3) config >> file
+**		4) config
 */
 
 void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
@@ -416,6 +341,39 @@ void	execute_iol(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 	}
 }
 
+void	redirect_std_in_out(t_dirs *pipes, char **in_out, bool rewrite)
+{
+	int		fd;
+
+	if (in_out[0])
+	{
+		if ((fd = open(in_out[0], O_RDONLY)) == -1)
+		{
+			// error;
+			// ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			exit(EXIT_FAILURE);
+		}
+		dup2(fd, STDIN_FILENO);
+		close(fd);
+	}
+	else if (pipes->is_in)
+		dup2(pipes->in_fd, STDIN_FILENO);
+	if (in_out[1])
+	{
+		if (rewrite)
+			fd = open(in_out[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		else
+			fd = open(in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
+		if (fd == -1)
+			// error;
+			exit(EXIT_FAILURE);
+		dup2(fd, STDOUT_FILENO);
+		close(fd);
+	}
+	else if (pipes->is_out)
+		dup2(pipes->out_fd, STDOUT_FILENO);
+}
+
 void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
 {
 	bool	rewrite;
@@ -425,13 +383,19 @@ void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
 		execute_iol(root_ptr->right, in_out, &rewrite);
 	else
 		execute_io(root_ptr->right, in_out, &rewrite);
-	execute_task(root_ptr->left, pipes, in_out, rewrite);
+
+	redirect_std_in_out(pipes, in_out, rewrite);
+	execute_config(root_ptr->left);
 }
 
 void	execute_job(t_ast_tree *root_ptr, t_dirs *pipes)
 {
 	char	*in_out[2];
+	int stdout_fd;
+	int stdin_fd;
 
+	stdout_fd = dup(STDOUT_FILENO);
+	stdin_fd = dup(STDIN_FILENO);
 	if (root_ptr)
 	{
 		in_out[0] = NULL;
@@ -439,8 +403,13 @@ void	execute_job(t_ast_tree *root_ptr, t_dirs *pipes)
 		if (root_ptr->type == CMD_IO_N)
 			execute_cmd_io(root_ptr, pipes, in_out);
 		else
-			execute_task(root_ptr, pipes, in_out, FALSE);
+		{
+			redirect_std_in_out(pipes, in_out, FALSE);
+			execute_config(root_ptr);
+		}
 	}
+	dup2(stdin_fd, STDIN_FILENO);
+	dup2(stdout_fd, STDOUT_FILENO);
 }
 
 void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)

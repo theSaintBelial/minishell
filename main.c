@@ -63,11 +63,11 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 		i++;
 	}
 		tmp = parser->list;
-		// 	while (tmp)
-		// {
-		// 	printf("| %s |\n", tmp->data);
-		// 	tmp = tmp->next;
-		// }
+			while (tmp)
+		{
+			printf("| %s |\n", tmp->data);
+			tmp = tmp->next;
+		}
 
 	return (0);
 }
@@ -97,7 +97,6 @@ int		main(int argc, char **argv, char **envp)
 				del_parser(parser, vars.line, 'a');
 		}
 		lexical_analysis(&vars, parser);
-		//t_token *tmp = parser->list;
 		free(vars.line);
 		vars.line = NULL;
 		parse(parser, &tree, envp);
