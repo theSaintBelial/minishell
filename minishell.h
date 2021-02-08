@@ -7,6 +7,11 @@
 # include <stdio.h>
 # include "gnl/get_next_line.h"
 # include "libft/libft.h"
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <string.h>
+# include <errno.h>
+# include <signal.h>
 
 # define PIPE '|'
 # define DOLLAR '$'
@@ -27,6 +32,10 @@
 /*
 ** STATUS OF FORWARD SLASH
 */
+// char **g_envp;
+
+
+typedef short		bool;
 
 enum				e_status
 {
@@ -101,12 +110,27 @@ typedef struct		s_tree
 	struct s_tree	*right;
 }					t_ast_tree;
 
+typedef struct	s_dirs
+{
+	bool		is_in;
+	bool		is_out;
+	int			in_fd;
+	int			out_fd;
+}				t_dirs;
+
+typedef struct	s_cmd
+{
+	char	**argv;
+	int		argc;
+}				t_cmd;
+
+int					new_strlen(char *str);
 int					init_lst(t_token *tmp, int size);
 int					check_type_token(char type, t_token **tmp,
 									t_vars *vars, int *i);
 void				check_all_tokens(t_token **tmp);
 int					init_new_node(t_token **tmp, int size);
-int					get_next_node(t_token **tmp, t_vars *vars, int *i);
+int					get_next_node(t_token **tmp, t_vars *vars, int i);
 int					parse(t_parser *parser, t_ast_tree **tree, char **env_buf);
 t_ast_tree			*pipe_com_node(t_token **tmp);
 t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type,
@@ -120,10 +144,22 @@ t_ast_tree			*get_arg(char *data, t_ast_tree *left,
 									t_ast_tree *right, int type);
 t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
+
+/*
+** executor.c
+*/
+void	executor(t_ast_tree *root_ptr, char **envp_buf);
+
 t_ast_tree			*command_node(t_token *list, int type);
 t_ast_tree			*arg_case_sec(t_token **lst, int type);
+
+/*
+** free.c
+*/
+void				free_tree(t_ast_tree **root);
+
 void				get_variable(t_token **tmp);
 void				del_parser(t_parser *parser, char *str, char type);
-void				del_token(t_token *tmp);
+void				del_token(t_token **tmp);
 
 #endif

@@ -1,13 +1,14 @@
 #include "minishell.h"
 
-void	del_token(t_token *tmp)
+void	del_token(t_token **tmp)
 {
-	if (tmp != NULL)
+	if (tmp != NULL && *tmp != NULL)
 	{
-		if (tmp->data)
-			free(tmp->data);
-		del_token(tmp->next);
-		free(tmp);
+		if ((*tmp)->data)
+			free((*tmp)->data);
+		del_token(&(*tmp)->next);
+		free((*tmp));
+		*tmp = NULL;
 	}
 }
 

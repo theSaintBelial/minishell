@@ -47,7 +47,7 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 	if (!(parser->list = malloc(sizeof(t_token))))
 		del_parser(parser, vars->line, 'a');
 	tmp = parser->list;
-	if (!(init_lst(tmp, ft_strlen(vars->line))))
+	if (!(init_lst(tmp, new_strlen(vars->line + 0))))
 		del_parser(parser, vars->line, 'a');
 	vars->count = 0;
 	i = 0;
@@ -57,12 +57,18 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 		if (check_type_token(type, &tmp, vars, &i) == 0)
 		{
 			tmp = parser->list;
-			del_token(tmp);
+			del_token(&tmp);
 			del_parser(parser, vars->line, 'o');
 		}
 		i++;
 	}
-	tmp = parser->list;
+		tmp = parser->list;
+			while (tmp)
+		{
+			printf("| %s |\n", tmp->data);
+			tmp = tmp->next;
+		}
+
 	return (0);
 }
 
@@ -92,8 +98,10 @@ int		main(int argc, char **argv, char **envp)
 		}
 		lexical_analysis(&vars, parser);
 		free(vars.line);
+		vars.line = NULL;
 		parse(parser, &tree, envp);
-		vars.checker = FALSE;
+		executor(tree, envp);
+		// free_tree(&tree);
 	}
 	return (EXIT_SUCCESS);
 }

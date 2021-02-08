@@ -56,6 +56,11 @@ void		sec_comm_node(t_token **tmp, t_ast_tree **left,
 			check_left_right(left, tmp);
 		if ((*tmp)->type == SEMICOLON)
 			(*tmp) = (*tmp)->next;
+		if ((*tmp)->type != TOKEN)
+		{
+			(*tmp) = (*tmp)->next;
+		}
+
 		return ;
 	}
 	if (type == 'r')
@@ -81,11 +86,11 @@ t_ast_tree	*command_node(t_token *list, int type)
 	right = NULL;
 	tmp = list;
 	sec_comm_node(&tmp, &left, &right, 'l');
-	if (tmp->next == NULL)
+	if (tmp == NULL)
 	{
 		if (left == NULL)
 			return (NULL);
-		cmd = set_node(NULL, type, left, right);
+		cmd = set_node(NULL, SEMICOLON_N, left, NULL);
 		return (cmd);
 	}
 	sec_comm_node(&tmp, &left, &right, 'r');
@@ -111,8 +116,8 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 		*tree = arg_case(&list, NONE);
 	if (*tree != NULL)
 	{
-		printtree(*tree, 0);
-		return (1);
+		// printtree(*tree, 0);
+		return 1;
 	}
 	return (0);
 }
@@ -123,19 +128,21 @@ int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
 
 	g_envp = env_buf;
 	tmp = parser->list;
+
 	if (check_grammer(tmp, tree) == 1)
 	{
-		printf("SUCCESS!\n");
+		// printf("SUCCESS!\n");
 		tmp = parser->list;
-		del_token(tmp);
-		del_parser(parser, NULL, 'o');
+		del_token(&tmp);
+		//del_parser(parser, NULL, 'o');
 	}
 	else
 	{
 		printf("ERROR\n");
 		tmp = parser->list;
-		del_token(tmp);
-		del_parser(parser, NULL, 'o');
+		del_token(&tmp);
+		//del_parser(parser, NULL, 'o');
 	}
 	return (0);
 }
+ 

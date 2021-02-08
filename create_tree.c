@@ -19,8 +19,7 @@ t_ast_tree	*set_node(char *data, int type, t_ast_tree *left, t_ast_tree *right)
 	if (!(cmd = malloc(sizeof(*cmd))))
 		return (NULL);
 	cmd->type = type;
-	if (data != NULL)
-		cmd->data = data;
+	cmd->data = data;
 	cmd->left = left;
 	cmd->right = right;
 	return (cmd);
@@ -33,7 +32,7 @@ t_ast_tree	*get_arg(char *data, t_ast_tree *left, t_ast_tree *right, int type)
 	int			i;
 
 	i = ft_strlen(data);
-	if (!(str = (char*)malloc(sizeof(char) * i + 1)))
+	if (!(str = (char*)ft_calloc(i + 1, sizeof(char))))
 		return (NULL);
 	ft_strlcpy(str, data, i + 1);
 	cmd = set_node(str, type, left, right);
