@@ -1,4 +1,5 @@
 #include "minishell.h"
+#include "global_vars.h"
 
 char	get_token_sec(char c)
 {
@@ -62,12 +63,12 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 		}
 		i++;
 	}
-		tmp = parser->list;
-			while (tmp)
-		{
-			printf("| %s |\n", tmp->data);
-			tmp = tmp->next;
-		}
+		// tmp = parser->list;
+		// 	while (tmp)
+		// {
+		// 	printf("| %s |\n", tmp->data);
+		// 	tmp = tmp->next;
+		// }
 
 	return (0);
 }
@@ -80,8 +81,6 @@ int		main(int argc, char **argv, char **envp)
 
 	vars.line = NULL;
 	vars.checker = TRUE;
-	(void)argc;
-	(void)argv[0];
 	if (!(parser = malloc(sizeof(t_parser))))
 		del_parser(parser, NULL, 'a');
 	tree = NULL;
@@ -99,9 +98,10 @@ int		main(int argc, char **argv, char **envp)
 		lexical_analysis(&vars, parser);
 		free(vars.line);
 		vars.line = NULL;
-		parse(parser, &tree, envp);
-		executor(tree, envp);
-		// free_tree(&tree);
+		g_envp = envp;
+		parse(parser, &tree);
+		executor(tree);
+		free_tree(&tree);
 	}
 	return (EXIT_SUCCESS);
 }

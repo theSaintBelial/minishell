@@ -1,7 +1,5 @@
 #include "minishell.h"
 
-char **g_envp;
-
 void		printtree(t_ast_tree *exectree, int t)
 {
 	if (exectree->left)
@@ -122,11 +120,10 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 	return (0);
 }
 
-int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
+int			parse(t_parser *parser, t_ast_tree **tree)
 {
 	t_token		*tmp;
 
-	g_envp = env_buf;
 	tmp = parser->list;
 
 	if (check_grammer(tmp, tree) == 1)
@@ -145,4 +142,3 @@ int			parse(t_parser *parser, t_ast_tree **tree, char **env_buf)
 	}
 	return (0);
 }
- 

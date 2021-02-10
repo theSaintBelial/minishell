@@ -6,13 +6,12 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/06 17:26:15 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/10 11:38:44 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**envp;
 int		g_code;
 
 void	set_dirs_config(t_dirs *config)
@@ -69,13 +68,10 @@ char	*get_current_home_path()
 	int		i;
 
 	i = 0;
-	while (envp[i])
+	while (g_envp[i])
 	{
-		if (!ft_strncmp(envp[i], "HOME=", 5))
-		{
-			current_home_path = ft_strchr(envp[i], '=') + 1;
-			return (current_home_path);
-		}
+		if (!ft_strncmp(g_envp[i], "HOME=", 5))
+			return (g_envp[i] + 5);
 		i++;
 	}
 	return (NULL);
@@ -112,15 +108,12 @@ char	**handle_path_dirs()
 	char	**path_dirs;
 
 	i = 0;
-	while (envp[i])
+	while (g_envp[i])
 	{
-		if (!ft_strncmp(envp[i], "PATH=", 5))
+		if (!ft_strncmp(g_envp[i], "PATH=", 5))
 		{
-			if (!(path_dirs = ft_split(ft_strchr(envp[i], '=') + 1, ':')))
-			{
-				; // error
-				exit(EXIT_FAILURE);
-			}
+			if (!(path_dirs = ft_split(g_envp[i] + 5, ':')))
+				ft_putendl_fd("Malloc error", STDERR_FILENO);
 			return (path_dirs);
 		}
 		i++;
@@ -136,10 +129,7 @@ bool	check_for_binary(t_cmd *cmd, int *status)
 	char	*bin;
 
 	if (!(path_dirs = handle_path_dirs()))
-	{
-		// error
 		return (FALSE);
-	}
 	i = 0;
 	while (path_dirs[i])
 	{
@@ -155,14 +145,14 @@ bool	check_for_binary(t_cmd *cmd, int *status)
 			// free path_dirs
 			return (FALSE);
 		}
-		if ((*status = execve(full_bin, cmd->argv, envp)) == -1)
+		if ((*status = execve(full_bin, cmd->argv, g_envp)) == -1)
 		{
 			// free all
 			;
 		}
 		i++;
 	}
-	if ((*status = execve(cmd->argv[0], cmd->argv, envp)) == -1)
+	if ((*status = execve(cmd->argv[0], cmd->argv, g_envp)) == -1)
 	{
 		; // error
 		return (FALSE);
@@ -192,8 +182,8 @@ void	default_bin_exec(t_cmd *cmd)
 	pid = fork();
 	if (pid < 0)
 	{
-		perror("fork"); // error
-		exit(EXIT_FAILURE);
+		ft_putendl_fd(strerror(errno), STDERR_FILENO);
+		return ;
 	}
 	else if (pid == 0)
 	{
@@ -202,8 +192,6 @@ void	default_bin_exec(t_cmd *cmd)
 		signal(SIGTERM, SIG_DFL);
 		if (!check_for_binary(cmd, &status))
 		{
-			// for (int i = 0; cmd->argv[i]; i++)
-			// 	printf("[%d]: {%s}\n", i, cmd->argv[i]);
 			ft_putendl_fd(strerror(errno), STDERR_FILENO);
 			exit(WEXITSTATUS(status));
 		}
@@ -215,11 +203,11 @@ void	default_bin_exec(t_cmd *cmd)
 		signal(SIGTERM, SIG_IGN);
 		pid = waitpid(pid, &status, WUNTRACED);
 		if ((g_code = status_return(status)) == 130)
-			write(2, "\n", 1);
+			ft_putendl_fd("", STDERR_FILENO);
 		if (g_code == 131)
-			write(2, "Quit: 3\n", 8);
+			ft_putendl_fd("Quit:", STDERR_FILENO);
 		if (g_code == 143)
-			write(2, "terminated\n", 11);
+			ft_putendl_fd("terminated", STDERR_FILENO);
 	}
 }
 
@@ -242,48 +230,96 @@ void	cmd_exec(t_cmd *cmd)
 		env_exec();
 	else if (!ft_strncmp(bin, "exit", 10))
 	{
-		printf("Kekekek\n");
-		exit(EXIT_SUCCESS);
+		; // idk
 	}
 	else
 		default_bin_exec(cmd);
 }
 
-void	execute_config(t_ast_tree *root_ptr)
+void	free_argv(char ***argv)
+{
+	int		i;
+	char	**tmp;
+
+	if (argv && *argv)
+	{
+		tmp = *argv;
+		i = 0;
+		while (tmp[i])
+		{
+			free(tmp[i]);
+			i++;
+		}
+		free(*argv);
+		*argv = NULL;
+	}
+}
+
+int		cmd_argv_size(t_ast_tree *root_ptr)
 {
 	t_ast_tree	*tmp;
 	int			i;
+
+	i = 0;
+	if (root_ptr)
+	{
+		tmp = root_ptr;
+		while (tmp)
+		{
+			i++;
+			tmp = tmp->right;
+		}
+	}
+	return (i);
+}
+
+char	**create_cmd(t_ast_tree *root_ptr, int size)
+{
+	t_ast_tree	*tmp;
+	char		**argv;
+	int			i;
+
+	argv = NULL;
+	if (root_ptr)
+	{
+		if (!(argv = (char **)ft_calloc(size + 1, sizeof(char *))))
+		{
+			ft_putendl_fd("Memory allocation error", STDERR_FILENO);
+			return (NULL);
+		}
+		tmp = root_ptr;
+		i = 0;
+		while (tmp)
+		{
+			if (!(argv[i++] = ft_strdup(tmp->data)))
+			{
+				ft_putendl_fd("Memory allocation error", STDERR_FILENO);
+				free_argv(&argv);
+				return (NULL);
+			}
+			tmp = tmp->right;
+		}
+	}
+	return (argv);
+}
+
+void	execute_config(t_ast_tree *root_ptr)
+{
+	t_ast_tree	*tmp;
+	int			size;
 	t_cmd		cmd;
 
 	if (root_ptr)
 	{
-		i = 0;
-		tmp = root_ptr;
-		while (tmp)
+		size = cmd_argv_size(root_ptr);
+		if (!(cmd.argv = create_cmd(root_ptr, size)))
 		{
-			i++;
-			tmp = tmp->right;
+			ft_putendl_fd("Memory allocation error", STDERR_FILENO);
+			return ;
 		}
-		cmd.argv = (char **)ft_calloc(i + 1, sizeof(char *));
-		tmp = root_ptr;
-		i = 0;
-		while (tmp)
-		{
-			cmd.argv[i++] = ft_strdup(tmp->data);
-			tmp = tmp->right;
-		}
-		cmd.argc = i;
-		// cmd_config_print(&cmd);
+		cmd.argc = size;
 		cmd_exec(&cmd);
-
-		// free argv
-		i = 0;
-		while (cmd.argv[i])
-		{
-			free(cmd.argv[i]);
-			i++;
-		}
-		free(cmd.argv);
+		free_argv(&(cmd.argv));
 	}
 }
 
@@ -294,7 +330,6 @@ void	execute_config(t_ast_tree *root_ptr)
 ** 		3) config >> file
 **		4) config
 */
-
 void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 {
 	int		fd;
@@ -320,24 +355,26 @@ void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 		}
 		if (fd == -1)
 		{
-			// error
-			// ft_putendl_fd(strerror(errno), STDERR_FILENO);
-			exit(EXIT_FAILURE);
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			g_errno = 1;
+			return ;
 		}
 		close(fd);
 	}
 }
-
 
 void	execute_iol(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 {
 	if (root_ptr)
 	{
 		execute_io(root_ptr->left, in_out, rewrite);
-		if (root_ptr->right && root_ptr->right->type == IO_LIST_N)
-			execute_iol(root_ptr->right, in_out, rewrite);
-		else
-			execute_io(root_ptr->right, in_out, rewrite);
+		if (!g_errno)
+		{
+			if (root_ptr->right && root_ptr->right->type == IO_LIST_N)
+				execute_iol(root_ptr->right, in_out, rewrite);
+			else
+				execute_io(root_ptr->right, in_out, rewrite);
+		}
 	}
 }
 
@@ -349,9 +386,8 @@ void	redirect_std_in_out(t_dirs *pipes, char **in_out, bool rewrite)
 	{
 		if ((fd = open(in_out[0], O_RDONLY)) == -1)
 		{
-			// error;
-			// ft_putendl_fd(strerror(errno), STDERR_FILENO);
-			exit(EXIT_FAILURE);
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			return ;
 		}
 		dup2(fd, STDIN_FILENO);
 		close(fd);
@@ -365,8 +401,10 @@ void	redirect_std_in_out(t_dirs *pipes, char **in_out, bool rewrite)
 		else
 			fd = open(in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
 		if (fd == -1)
-			// error;
-			exit(EXIT_FAILURE);
+		{
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			return ;
+		}
 		dup2(fd, STDOUT_FILENO);
 		close(fd);
 	}
@@ -383,9 +421,11 @@ void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
 		execute_iol(root_ptr->right, in_out, &rewrite);
 	else
 		execute_io(root_ptr->right, in_out, &rewrite);
-
-	redirect_std_in_out(pipes, in_out, rewrite);
-	execute_config(root_ptr->left);
+	if (!g_errno)
+	{
+		redirect_std_in_out(pipes, in_out, rewrite);
+		execute_config(root_ptr->left);
+	}
 }
 
 void	execute_job(t_ast_tree *root_ptr, t_dirs *pipes)
@@ -418,7 +458,10 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
 	t_ast_tree	*tmp;
 
 	if (pipe(fd) == -1)
-		; // error
+	{
+		ft_putendl_fd(strerror(errno), STDERR_FILENO);
+		return ;
+	}
 	pipes->is_out = TRUE;
 	pipes->out_fd = fd[1];
 	execute_job(root_ptr->left, pipes);
@@ -428,9 +471,11 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
 		close(pipes->out_fd);
 		pipes->is_in = TRUE;
 		pipes->in_fd = fd[0];
-
 		if (pipe(fd) == -1)
-			; // error
+		{
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			return ;
+		}
 		pipes->is_out = TRUE;
 		pipes->out_fd = fd[1];
 		execute_job(tmp->left, pipes);
@@ -450,7 +495,6 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
 ** 		1) JOB | COMMAND
 ** 		2) JOB
 */
-
 void	execute_command(t_ast_tree *root_ptr)
 {
 	t_dirs	pipes;
@@ -470,7 +514,6 @@ void	execute_command(t_ast_tree *root_ptr)
 ** 		1) COMMAND ; (LINE)?
 ** 		2) COMMAND
 */
-
 void	execute_line(t_ast_tree *root_ptr)
 {
 	if (root_ptr)
@@ -488,10 +531,7 @@ void	execute_line(t_ast_tree *root_ptr)
 /*
 ** EXECUTE ASTREE
 */
-
-void	executor(t_ast_tree *root_ptr, char **envp_buf)
+void	executor(t_ast_tree *root_ptr)
 {
-	envp = envp_buf;
 	execute_line(root_ptr);
-	free_tree(&root_ptr);
 }
