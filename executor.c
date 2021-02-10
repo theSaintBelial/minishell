@@ -6,13 +6,13 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/10 16:24:16 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/10 20:11:54 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int		g_code;
+char	*get_env_value(char *env_name);
 
 void	set_dirs_config(t_dirs *config)
 {
@@ -97,7 +97,26 @@ void	cd_exec(t_cmd *cmd)
 
 void	export_exec(){}
 void	unset_exec(){}
-void	env_exec(){}
+
+void	env_exec(t_cmd *cmd)
+{
+	t_env	*tmp;
+
+	if (cmd->argc > 1)
+	{
+		ft_putendl_fd("env: Too many args", STDERR_FILENO);
+		g_exit_code = 1;
+		return ;
+	}
+	tmp = g_envlst;
+	while (tmp)
+	{
+		ft_putstr_fd(tmp->name, STDOUT_FILENO);
+		ft_putstr_fd("=", STDOUT_FILENO);
+		ft_putendl_fd(tmp->value, STDOUT_FILENO);
+		tmp = tmp->next;
+	}
+}
 
 char	**handle_path_dirs()
 {
@@ -201,11 +220,11 @@ void	default_bin_exec(t_cmd *cmd)
 		signal(SIGQUIT, SIG_IGN);
 		signal(SIGTERM, SIG_IGN);
 		pid = waitpid(pid, &status, WUNTRACED);
-		if ((g_code = status_return(status)) == 130)
+		if ((g_exit_code = status_return(status)) == 130)
 			ft_putendl_fd("", STDERR_FILENO);
-		if (g_code == 131)
+		if (g_exit_code == 131)
 			ft_putendl_fd("Quit:", STDERR_FILENO);
-		if (g_code == 143)
+		if (g_exit_code == 143)
 			ft_putendl_fd("terminated", STDERR_FILENO);
 	}
 }
@@ -226,7 +245,7 @@ void	cmd_exec(t_cmd *cmd)
 	else if (!ft_strncmp(bin, "unset", 10))
 		unset_exec();
 	else if (!ft_strncmp(bin, "env", 10))
-		env_exec();
+		env_exec(cmd);
 	else if (!ft_strncmp(bin, "exit", 10))
 	{
 		exit(EXIT_SUCCESS);
@@ -277,6 +296,7 @@ char	**create_cmd(t_ast_tree *root_ptr, int size)
 	t_ast_tree	*tmp;
 	char		**argv;
 	int			i;
+	char		*data;
 
 	argv = NULL;
 	if (root_ptr)
@@ -290,13 +310,17 @@ char	**create_cmd(t_ast_tree *root_ptr, int size)
 		i = 0;
 		while (tmp)
 		{
-			if (!(argv[i++] = ft_strdup(tmp->data)))
+			data = (tmp->type == VARIABLE_N ? get_env_value(tmp->data) : tmp->data);
+			if (data)
 			{
-				ft_putendl_fd("Memory allocation error", STDERR_FILENO);
-				free_argv(&argv);
-				return (NULL);
+				if (!(argv[i++] = ft_strdup(data)))
+				{
+					ft_putendl_fd("Memory allocation error", STDERR_FILENO);
+					free_argv(&argv);
+					return (NULL);
+				}
+				tmp = tmp->right;
 			}
-			tmp = tmp->right;
 		}
 	}
 	return (argv);
@@ -322,6 +346,20 @@ void	execute_config(t_ast_tree *root_ptr)
 	}
 }
 
+char	*get_env_value(char *env_name)
+{
+	t_env	*cur;
+	char	*env_value;
+
+	env_value = NULL;
+	cur = ft_env_find(g_envlst, env_name);
+	if (cur)
+		env_value = cur->value;
+	else if (ft_strncmp(env_name, "?", 1000) == 0)
+		env_value = ft_itoa(g_exit_code);
+	return (env_value);
+}
+
 /*
 ** EXECUTE LINE:
 ** 		1) config < file
@@ -332,30 +370,39 @@ void	execute_config(t_ast_tree *root_ptr)
 void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 {
 	int		fd;
+	char	*filename;
 
-	if (root_ptr)
+	filename = NULL;
+	if (root_ptr && root_ptr->right)
 	{
+		filename = (root_ptr->right->type == VARIABLE_N ? get_env_value(root_ptr->right->data) : root_ptr->data);
+		if (!filename)
+		{
+			ft_putendl_fd("wtf u doin??? redirect error", STDERR_FILENO);
+			g_exit_code = 1;
+			return ;
+		}
 		if (root_ptr->type == LESS_N)
 		{
-			fd = open(root_ptr->data, O_RDONLY);
-			in_out[0] = root_ptr->data;
+			fd = open(filename, O_RDONLY);
+			in_out[0] = filename;
 		}
 		else if (root_ptr->type == GREATER_N)
 		{
-			fd = open(root_ptr->data, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-			in_out[1] = root_ptr->data;
+			fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+			in_out[1] = filename;
 			*rewrite = TRUE;
 		}
 		else if (root_ptr->type == D_GREATER_N)
 		{
-			fd = open(root_ptr->data, O_WRONLY | O_CREAT | O_APPEND, 0666);
-			in_out[1] = root_ptr->data;
+			fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0666);
+			in_out[1] = filename;
 			*rewrite = FALSE;
 		}
 		if (fd == -1)
 		{
 			ft_putendl_fd(strerror(errno), STDERR_FILENO);
-			g_errno = 1;
+			g_exit_code = 1;
 			return ;
 		}
 		close(fd);
@@ -367,7 +414,7 @@ void	execute_iol(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 	if (root_ptr)
 	{
 		execute_io(root_ptr->left, in_out, rewrite);
-		if (!g_errno)
+		if (!g_exit_code)
 		{
 			if (root_ptr->right && root_ptr->right->type == IO_LIST_N)
 				execute_iol(root_ptr->right, in_out, rewrite);
@@ -420,7 +467,7 @@ void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
 		execute_iol(root_ptr->right, in_out, &rewrite);
 	else
 		execute_io(root_ptr->right, in_out, &rewrite);
-	if (!g_errno)
+	if (!g_exit_code)
 	{
 		redirect_std_in_out(pipes, in_out, rewrite);
 		execute_config(root_ptr->left);

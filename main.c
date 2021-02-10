@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:01 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/10 19:01:33 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/10 20:17:31 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ void	sigquit_handler(int n)
 	write(STDOUT_FILENO, "\b\b  \b\b", 6);
 	(void)n;
 }
-void	ignore_signals()
+void	handle_signals()
 {
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, sigquit_handler);
@@ -114,7 +114,7 @@ int		main(int argc, char **argv, char **envp)
 		while (vars.loop)
 		{
 			vars.loop = FALSE;
-			ignore_signals();
+			handle_signals();
 			ft_putstr_fd(PROMPT, STDOUT_FILENO);
 			vars.gnl_check = get_next_line(STDIN_FILENO, &(vars.line));
 			if (vars.gnl_check == -1)
@@ -125,8 +125,10 @@ int		main(int argc, char **argv, char **envp)
 		vars.line = NULL;
 		g_envp = envp;
 		parse(parser, &tree);
-		//executor(tree);
-		//free_tree(&tree);
+		g_root = tree;
+		envp_create_lst(&g_envlst);
+		executor(tree);
+		free_tree(&tree);
 	}
 	return (EXIT_SUCCESS);
 }

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   env_list.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 13:19:19 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/10 18:50:27 by lgorilla         ###   ########.fr       */
+/*   Updated: 2021/02/10 19:57:22 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/* 
+/*
 *  SORT LIST FUNC IN sort_env_list.c
 */
 
@@ -111,4 +111,18 @@ void	envp_create_lst(t_env **env)
 		}
 		i++;
 	}
+}
+
+t_env	*ft_env_find(t_env *envlst, char *data_ref)
+{
+	if (envlst)
+	{
+		while (envlst)
+		{
+			if (ft_strncmp(envlst->name, data_ref, 1024) == 0)
+				return (envlst);
+			envlst = envlst->next;
+		}
+	}
+	return (NULL);
 }
