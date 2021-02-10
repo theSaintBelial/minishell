@@ -1,9 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   struct_init.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/10 18:51:28 by lgorilla          #+#    #+#             */
+/*   Updated: 2021/02/10 18:51:46 by lgorilla         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /*
 ** INIT LIST
 */
-
 int		init_lst(t_token *tmp, int size)
 {
 	if (!(tmp->data = (char*)ft_calloc(size + 1, sizeof(char))))

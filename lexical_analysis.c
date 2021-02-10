@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexical_analysis.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/10 18:50:54 by lgorilla          #+#    #+#             */
+/*   Updated: 2021/02/10 18:50:55 by lgorilla         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /*
@@ -14,11 +26,14 @@ int new_strlen(char *str)
 	len = 0;
 	while (str[i])
 	{
-		if (ft_isalpha(str[i]) == 1 || ft_isdigit(str[i]) == 1)
-			len++;
-		else if (str[i] == ';' || str[i] == ' ')
-			i++;
-		else
+		if (str[i] != ';' || str[i] != ' ')
+		{
+			if (str[i] == DOUBLE_SLASH)
+				i += 2;
+			if (ft_isprint(str[i]) == 1)
+				len++;
+		}
+		if (str[i] == ';' || str[i] == ' ')
 			return (len);
 		i++;
 	}
@@ -27,6 +42,7 @@ int new_strlen(char *str)
 
 int	check_spec_symb(char type, t_token **tmp, t_vars *vars, int *i)
 {
+	printf("!!!\n");
 	(*i)++;
 	while (vars->line[(*i)])
 	{
@@ -83,7 +99,7 @@ int	another_special_tokens(char type, t_token **tmp, t_vars *vars, int *i)
 	{
 		(*tmp)->data[vars->count++] = vars->line[++(*i)];
 		(*tmp)->type = TOKEN;
-		return (0);
+		return (1);
 	}
 	return (0);
 }

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_syntax.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/10 18:51:21 by lgorilla          #+#    #+#             */
+/*   Updated: 2021/02/10 18:53:15 by lgorilla         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void		printtree(t_ast_tree *exectree, int t)
@@ -19,28 +31,6 @@ void		printtree(t_ast_tree *exectree, int t)
 	// 	printf("%s\n", (exectree)->szData);
 	// 	printtree((exectree)->left, t+1);
 	// }
-}
-
-void		get_variable(t_token **tmp)
-{
-	int		i;
-	int		len;
-	char	*str;
-
-	i = 0;
-	len = ft_strlen((*tmp)->data);
-	while (g_envp[i])
-	{
-		if (ft_strncmp(g_envp[i], (*tmp)->data, len) == 0)
-		{
-			str = ft_strdup(g_envp[i]);
-			free((*tmp)->data);
-			(*tmp)->data = ft_strdup(str + (len + 1));
-			free(str);
-			return ;
-		}
-		i++;
-	}
 }
 
 void		sec_comm_node(t_token **tmp, t_ast_tree **left,
@@ -114,7 +104,7 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 		*tree = arg_case(&list, NONE);
 	if (*tree != NULL)
 	{
-		// printtree(*tree, 0);
+		printtree(*tree, 0);
 		return 1;
 	}
 	return (0);
@@ -125,7 +115,6 @@ int			parse(t_parser *parser, t_ast_tree **tree)
 	t_token		*tmp;
 
 	tmp = parser->list;
-
 	if (check_grammer(tmp, tree) == 1)
 	{
 		// printf("SUCCESS!\n");

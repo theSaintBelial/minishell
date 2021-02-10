@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/10 18:51:16 by lgorilla          #+#    #+#             */
+/*   Updated: 2021/02/10 18:51:17 by lgorilla         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -46,8 +58,8 @@ enum				e_status
 
 enum				e_bool
 {
-	FALSE,
-	TRUE,
+	TRUE = 1,
+	FALSE = 0,
 };
 
 /*
@@ -120,6 +132,14 @@ typedef struct	s_cmd
 	int		argc;
 }				t_cmd;
 
+typedef struct 		s_env
+{
+	char			*name;
+	char			*value;
+	int				visible;
+	struct s_env	*next;
+}					t_env;
+
 int					new_strlen(char *str);
 int					init_lst(t_token *tmp, int size);
 int					check_type_token(char type, t_token **tmp,
@@ -140,6 +160,9 @@ t_ast_tree			*get_arg(char *data, t_ast_tree *left,
 									t_ast_tree *right, int type);
 t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
+void				envp_create_lst(t_env **env);
+void				del_one_lst(t_env **env, char *name);
+void				sort_env_list(t_env *env);
 
 /*
 ** file: executor.c
