@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   create_tree.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/10 18:50:40 by lgorilla          #+#    #+#             */
+/*   Updated: 2021/02/10 18:50:41 by lgorilla         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void		check_left_right(t_ast_tree **node, t_token **tmp)
@@ -68,7 +80,6 @@ t_ast_tree	*arg_case(t_token **lst, int type)
 	{
 		tmp = tmp->next;
 		type = VARIABLE_N;
-		get_variable(&tmp);
 	}
 	else
 		type = NONE;

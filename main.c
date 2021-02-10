@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/10 18:51:01 by lgorilla          #+#    #+#             */
+/*   Updated: 2021/02/10 19:01:33 by lnovella         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 #include "global_vars.h"
 
@@ -63,17 +75,10 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 		}
 		i++;
 	}
-		// tmp = parser->list;
-		// 	while (tmp)
-		// {
-		// 	printf("| %s |\n", tmp->data);
-		// 	tmp = tmp->next;
-		// }
-
 	return (0);
 }
 
-void    sigint_handler(int n)
+void	sigint_handler(int n)
 {
 	write(STDOUT_FILENO, "\b\b  \b\b", 6);
 	ft_putendl_fd("", 1);
@@ -81,7 +86,7 @@ void    sigint_handler(int n)
 	(void)n;
 }
 
-void    sigquit_handler(int n)
+void	sigquit_handler(int n)
 {
 	write(STDOUT_FILENO, "\b\b  \b\b", 6);
 	(void)n;
@@ -120,8 +125,8 @@ int		main(int argc, char **argv, char **envp)
 		vars.line = NULL;
 		g_envp = envp;
 		parse(parser, &tree);
-		executor(tree);
-		free_tree(&tree);
+		//executor(tree);
+		//free_tree(&tree);
 	}
 	return (EXIT_SUCCESS);
 }
