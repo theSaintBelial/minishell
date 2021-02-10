@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/10 11:38:44 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/10 16:24:16 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ void	echo_exec(t_cmd *cmd)
 			ft_putstr_fd(" ", STDOUT_FILENO);
 	}
 	(*funcs[func_n])("", STDOUT_FILENO);
-	// free all
 }
 
 void	pwd_exec(t_cmd *cmd)
@@ -59,7 +58,7 @@ void	pwd_exec(t_cmd *cmd)
 		free(dir);
 	}
 	else
-		; // error
+		ft_putendl_fd(strerror(errno), STDERR_FILENO);
 }
 
 char	*get_current_home_path()
@@ -87,14 +86,12 @@ void	cd_exec(t_cmd *cmd)
 	{
 		current_home_path = get_current_home_path();
 		if (chdir(current_home_path))
-			// error
-			;
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
 	}
 	else
 	{
 		if (chdir(cmd->argv[1]))
-			// error
-			;
+			ft_putendl_fd(strerror(errno), STDERR_FILENO);
 	}
 }
 
@@ -121,42 +118,44 @@ char	**handle_path_dirs()
 	return (NULL);
 }
 
+char	*get_binary(char *path_dir, char *bin)
+{
+	char	*tmp;
+	char	*full_bin;
+
+	tmp = NULL;
+	full_bin = NULL;
+	if (!(tmp = ft_strjoin("/", bin)))
+		return (NULL);
+	full_bin = ft_strjoin(path_dir, tmp);
+	free(tmp);
+	return (full_bin);
+}
+
 bool	check_for_binary(t_cmd *cmd, int *status)
 {
 	char	**path_dirs;
 	int		i;
 	char	*full_bin;
-	char	*bin;
 
 	if (!(path_dirs = handle_path_dirs()))
 		return (FALSE);
 	i = 0;
 	while (path_dirs[i])
 	{
-		if (!(bin = ft_strjoin("/", cmd->argv[0])))
+		if (!(full_bin = get_binary(path_dirs[i], cmd->argv[0])))
 		{
-			; // error
-			// free(path_dirs)
-			exit(EXIT_FAILURE);
-		}
-		if (!(full_bin = ft_strjoin(path_dirs[i], bin)))
-		{
-			; // error
-			// free path_dirs
+			ft_putendl_fd("malloc error", STDERR_FILENO);
 			return (FALSE);
 		}
-		if ((*status = execve(full_bin, cmd->argv, g_envp)) == -1)
-		{
-			// free all
-			;
-		}
+		*status = execve(full_bin, cmd->argv, g_envp);
+		free(full_bin);
+		free(path_dirs[i]);
 		i++;
 	}
+	free(path_dirs);
 	if ((*status = execve(cmd->argv[0], cmd->argv, g_envp)) == -1)
-	{
-		; // error
 		return (FALSE);
-	}
 	return (TRUE);
 }
 
@@ -230,7 +229,7 @@ void	cmd_exec(t_cmd *cmd)
 		env_exec();
 	else if (!ft_strncmp(bin, "exit", 10))
 	{
-		; // idk
+		exit(EXIT_SUCCESS);
 	}
 	else
 		default_bin_exec(cmd);

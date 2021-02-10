@@ -73,6 +73,25 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 	return (0);
 }
 
+void    sigint_handler(int n)
+{
+	write(STDOUT_FILENO, "\b\b  \b\b", 6);
+	ft_putendl_fd("", 1);
+	ft_putstr_fd(PROMPT, STDOUT_FILENO);
+	(void)n;
+}
+
+void    sigquit_handler(int n)
+{
+	write(STDOUT_FILENO, "\b\b  \b\b", 6);
+	(void)n;
+}
+void	ignore_signals()
+{
+	signal(SIGINT, sigint_handler);
+	signal(SIGQUIT, sigquit_handler);
+}
+
 int		main(int argc, char **argv, char **envp)
 {
 	t_vars		vars;
@@ -90,6 +109,7 @@ int		main(int argc, char **argv, char **envp)
 		while (vars.loop)
 		{
 			vars.loop = FALSE;
+			ignore_signals();
 			ft_putstr_fd(PROMPT, STDOUT_FILENO);
 			vars.gnl_check = get_next_line(STDIN_FILENO, &(vars.line));
 			if (vars.gnl_check == -1)

@@ -120,6 +120,12 @@ typedef struct	s_cmd
 	int		argc;
 }				t_cmd;
 
+typedef struct	s_data
+{
+	
+}				t_data;
+
+
 int					new_strlen(char *str);
 int					init_lst(t_token *tmp, int size);
 int					check_type_token(char type, t_token **tmp,
