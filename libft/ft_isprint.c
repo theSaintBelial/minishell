@@ -6,7 +6,7 @@
 /*   By: lgorilla <lgorilla@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/08 18:13:27 by lgorilla          #+#    #+#             */
-/*   Updated: 2020/05/09 20:31:38 by lgorilla         ###   ########.fr       */
+/*   Updated: 2021/02/10 12:40:02 by lgorilla         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int		ft_isprint(int ch)
 {
-	if (ch >= 32 && ch <= 126)
+	if (ch > 32 && ch <= 126)
 		return (1);
 	return (0);
 }

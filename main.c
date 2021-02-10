@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/10 18:51:01 by lgorilla          #+#    #+#             */
+/*   Updated: 2021/02/10 18:51:03 by lgorilla         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 #include "global_vars.h"
 
@@ -63,13 +75,6 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 		}
 		i++;
 	}
-		// tmp = parser->list;
-		// 	while (tmp)
-		// {
-		// 	printf("| %s |\n", tmp->data);
-		// 	tmp = tmp->next;
-		// }
-
 	return (0);
 }
 
@@ -100,8 +105,8 @@ int		main(int argc, char **argv, char **envp)
 		vars.line = NULL;
 		g_envp = envp;
 		parse(parser, &tree);
-		executor(tree);
-		free_tree(&tree);
+		//executor(tree);
+		//free_tree(&tree);
 	}
 	return (EXIT_SUCCESS);
 }
