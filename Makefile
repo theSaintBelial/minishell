@@ -13,8 +13,8 @@ NAME = minishell
 
 all: $(NAME)
 
-$(NAME): $(SRCS) minishell.h
+$(NAME): $(SRCS) minishell.h global_vars.h
 	make all -C ./libft
-	gcc -g -I. minishell.h gnl/get_next_line.h $(SRCS) -L$(LIBFT_DIR) $(FLAGS_LINK) -o $(NAME)
+	gcc -g -I. minishell.h global_vars.h gnl/get_next_line.h $(SRCS) -L$(LIBFT_DIR) $(FLAGS_LINK) -o $(NAME)
 
 run: @./minishell

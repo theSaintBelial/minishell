@@ -32,8 +32,8 @@
 /*
 ** STATUS OF FORWARD SLASH
 */
-// char **g_envp;
-
+extern char			**g_envp;
+extern int			g_errno;
 
 typedef short		bool;
 
@@ -53,7 +53,6 @@ enum				e_bool
 /*
 ** AST NODE TYPE
 */
-
 enum				e_ast_flags
 {
 	PIPE_N = 1,
@@ -70,7 +69,6 @@ enum				e_ast_flags
 /*
 ** TOKEN DEFINITION
 */
-
 typedef struct		s_token
 {
 	char			*data;
@@ -81,7 +79,6 @@ typedef struct		s_token
 /*
 ** LIST OF TOKENS
 */
-
 typedef struct		s_parser
 {
 	t_token			*list;
@@ -101,7 +98,6 @@ typedef struct		s_vars
 /*
 ** ABSTRACT SYNTAX TREE
 */
-
 typedef struct		s_tree
 {
 	char			*data;
@@ -131,7 +127,7 @@ int					check_type_token(char type, t_token **tmp,
 void				check_all_tokens(t_token **tmp);
 int					init_new_node(t_token **tmp, int size);
 int					get_next_node(t_token **tmp, t_vars *vars, int i);
-int					parse(t_parser *parser, t_ast_tree **tree, char **env_buf);
+int					parse(t_parser *parser, t_ast_tree **tree);
 t_ast_tree			*pipe_com_node(t_token **tmp);
 t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type,
 									int ex_type, int flag);
@@ -146,9 +142,11 @@ t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
 
 /*
-** executor.c
+** file: executor.c
+** running all the process
+** root_ptr - ptr to the root of the tree
 */
-void	executor(t_ast_tree *root_ptr, char **envp_buf);
+void	executor(t_ast_tree *root_ptr);
 
 t_ast_tree			*command_node(t_token *list, int type);
 t_ast_tree			*arg_case_sec(t_token **lst, int type);

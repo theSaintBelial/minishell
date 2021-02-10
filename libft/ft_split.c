@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgorilla <lgorilla@student.21-school.ru>   +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/19 20:16:18 by lgorilla          #+#    #+#             */
-/*   Updated: 2020/05/23 13:38:43 by lgorilla         ###   ########.fr       */
+/*   Updated: 2021/02/09 18:37:41 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,8 @@ static void		mem(int *j, char **ptr, const char *s, int *word_len)
 {
 	if (!(ptr[*j] = (char *)malloc(sizeof(char) * (*word_len + 1))))
 	{
-		while (*j > 0)
-		{
+		while (*j--)
 			free(ptr[*j]);
-			(*j)--;
-		}
 		free(ptr);
 		return ;
 	}
