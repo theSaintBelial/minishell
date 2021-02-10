@@ -6,7 +6,7 @@
 /*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:50:40 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/10 18:50:41 by lgorilla         ###   ########.fr       */
+/*   Updated: 2021/02/10 20:22:09 by lgorilla         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,12 @@ t_ast_tree	*arg_case_sec(t_token **lst, int type)
 	t_ast_tree	*right;
 
 	tmp = *lst;
-	if (tmp != NULL && tmp->type == TOKEN)
+	if (type == NONE)
+		return (arg_case(lst, type));
+	if (tmp != NULL && (tmp->type == TOKEN || tmp->type == DOLLAR))
 	{
-		right = arg_case(&(tmp->next), type);
-		cmd = get_arg(tmp->data, NULL, right, type);
+		right = arg_case(&tmp, type);
+		cmd = set_node(NULL, type, NULL, right);
 		if (tmp->next != NULL)
 			*lst = tmp->next;
 		return (cmd);
