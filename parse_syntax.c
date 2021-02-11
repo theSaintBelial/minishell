@@ -6,7 +6,7 @@
 /*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:21 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/10 20:22:38 by lgorilla         ###   ########.fr       */
+/*   Updated: 2021/02/11 18:22:47 by lgorilla         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 		*tree = arg_case(&list, NONE);
 	if (*tree != NULL)
 	{
-		//printtree(*tree, 0);
+		printtree(*tree, 0);
 		return 1;
 	}
 	return (0);
