@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/10 20:11:54 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/11 20:45:54 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,7 +375,7 @@ void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 	filename = NULL;
 	if (root_ptr && root_ptr->right)
 	{
-		filename = (root_ptr->right->type == VARIABLE_N ? get_env_value(root_ptr->right->data) : root_ptr->data);
+		filename = (root_ptr->right->type == VARIABLE_N ? get_env_value(root_ptr->right->data) : root_ptr->right->data);
 		if (!filename)
 		{
 			ft_putendl_fd("wtf u doin??? redirect error", STDERR_FILENO);
@@ -579,5 +579,6 @@ void	execute_line(t_ast_tree *root_ptr)
 */
 void	executor(t_ast_tree *root_ptr)
 {
+	g_exit_code = 0;
 	execute_line(root_ptr);
 }
