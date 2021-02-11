@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:01 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/10 20:17:31 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/11 13:44:45 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,10 +125,10 @@ int		main(int argc, char **argv, char **envp)
 		vars.line = NULL;
 		g_envp = envp;
 		parse(parser, &tree);
-		g_root = tree;
-		envp_create_lst(&g_envlst);
-		executor(tree);
-		free_tree(&tree);
+		// g_root = tree;
+		// envp_create_lst(&g_envlst);
+		// executor(tree);
+		// free_tree(&tree);
 	}
 	return (EXIT_SUCCESS);
 }
