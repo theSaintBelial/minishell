@@ -6,7 +6,7 @@
 /*   By: lgorilla <lgorilla@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:50:54 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/10 18:50:55 by lgorilla         ###   ########.fr       */
+/*   Updated: 2021/02/11 18:33:11 by lgorilla         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int new_strlen(char *str)
 		if (str[i] != ';' || str[i] != ' ')
 		{
 			if (str[i] == DOUBLE_SLASH)
-				i += 2;
+				i++;
 			if (ft_isprint(str[i]) == 1)
 				len++;
 		}
@@ -42,7 +42,6 @@ int new_strlen(char *str)
 
 int	check_spec_symb(char type, t_token **tmp, t_vars *vars, int *i)
 {
-	printf("!!!\n");
 	(*i)++;
 	while (vars->line[(*i)])
 	{
@@ -88,20 +87,16 @@ int	another_special_tokens(char type, t_token **tmp, t_vars *vars, int *i)
 		return (1);
 	}
 	if (type == F_SLASH)
-	{
 		check_spec_symb(type, tmp, vars, i);
-	}
 	if (type == DF_SLASH)
-	{
 		check_spec_symb_sec(type, tmp, vars, i);
-	}
 	if (type == DOUBLE_SLASH)
 	{
 		(*tmp)->data[vars->count++] = vars->line[++(*i)];
 		(*tmp)->type = TOKEN;
 		return (1);
 	}
-	return (0);
+	return (1);
 }
 
 /*
