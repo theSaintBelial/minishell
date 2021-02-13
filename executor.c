@@ -95,27 +95,80 @@ void	cd_exec(t_cmd *cmd)
 	}
 }
 
-void	export_exec(){}
-void	unset_exec(){}
-
-void	env_exec(t_cmd *cmd)
+void 	print_env_lst(t_env *envlst, bool visible)
 {
 	t_env	*tmp;
 
+	tmp = envlst;
+	while (tmp)
+	{
+		if (!visible || tmp->visible)
+		{
+			if (visible)
+				ft_putstr_fd("export ", STDOUT_FILENO);
+			ft_putstr_fd(tmp->name, STDOUT_FILENO);
+			ft_putstr_fd("=", STDOUT_FILENO);
+			ft_putendl_fd(tmp->value, STDOUT_FILENO);
+		}
+		tmp = tmp->next;
+	}
+}
+
+void	export_exec(t_cmd *cmd)
+{
+	t_env	*cpy;
+	t_env	*tmp;
+	int		i;
+
+	if (cmd->argc == 1)
+	{
+		cpy = env_lst_dup(g_envlst);
+		sort_env_list(cpy);
+		print_env_lst(cpy, TRUE);
+		del_env_lst(cpy);
+	}
+	else
+	{
+		i = 0;
+		while (cmd->argv[i])
+		{
+			if (ft_strchr(cmd->argv[i], '='))
+				env_var_set(cmd->argv[i], TRUE);
+			else
+			{
+				if ((tmp = ft_env_find(g_envlst, cmd->argv[i])))
+					tmp->visible = TRUE;
+			}
+			i++;
+		}
+	}
+}
+
+void	unset_exec(t_cmd *cmd)
+{
+	int		i;
+	t_env	*tmp;
+
+	if (cmd->argc > 1)
+	{
+		i = 1;
+		while (cmd->argv[i])
+		{
+			del_one_lst(&g_envlst, cmd->argv[i]);
+			i++;
+		}
+	}
+}
+
+void	env_exec(t_cmd *cmd)
+{
 	if (cmd->argc > 1)
 	{
 		ft_putendl_fd("env: Too many args", STDERR_FILENO);
 		g_exit_code = 1;
 		return ;
 	}
-	tmp = g_envlst;
-	while (tmp)
-	{
-		ft_putstr_fd(tmp->name, STDOUT_FILENO);
-		ft_putstr_fd("=", STDOUT_FILENO);
-		ft_putendl_fd(tmp->value, STDOUT_FILENO);
-		tmp = tmp->next;
-	}
+	print_env_lst(g_envlst, FALSE);
 }
 
 char	**handle_path_dirs()
@@ -229,6 +282,32 @@ void	default_bin_exec(t_cmd *cmd)
 	}
 }
 
+void	env_var_set(char *set, bool visible)
+{
+	char	**env_var;
+	t_env	*env;
+
+	if (set)
+	{
+		if (!(env_var = ft_split(set, '=')))
+		{
+			ft_putendl_fd("error: malloc", STDERR_FILENO);
+			return ;
+		}
+		if ((env = ft_env_find(g_envlst, env_var[0])))
+			env->value = env_var[1];
+		else
+		{
+			if (!(env = new_lst(env_var[0], env_var[1], visible)))
+			{
+				ft_putendl_fd("fking error", STDERR_FILENO);
+				return; // free
+			}
+			env_list_add_back(&g_envlst, env);
+		}
+	}
+}
+
 void	cmd_exec(t_cmd *cmd)
 {
 	char	*bin;
@@ -241,14 +320,17 @@ void	cmd_exec(t_cmd *cmd)
 	else if (!ft_strncmp(bin, "pwd", 10))
 		pwd_exec(cmd);
 	else if (!ft_strncmp(bin, "export", 10))
-		export_exec();
+		export_exec(cmd);
 	else if (!ft_strncmp(bin, "unset", 10))
-		unset_exec();
+		unset_exec(cmd);
 	else if (!ft_strncmp(bin, "env", 10))
 		env_exec(cmd);
 	else if (!ft_strncmp(bin, "exit", 10))
-	{
 		exit(EXIT_SUCCESS);
+	else if (ft_strchr(bin, '='))
+	{
+		for (int i = 0; cmd->argv[i]; i++)
+			env_var_set(cmd->argv[i], FALSE);
 	}
 	else
 		default_bin_exec(cmd);
@@ -355,7 +437,7 @@ char	*get_env_value(char *env_name)
 	cur = ft_env_find(g_envlst, env_name);
 	if (cur)
 		env_value = cur->value;
-	else if (ft_strncmp(env_name, "?", 1000) == 0)
+	else if (ft_strncmp(env_name, "?", 10) == 0)
 		env_value = ft_itoa(g_exit_code);
 	return (env_value);
 }

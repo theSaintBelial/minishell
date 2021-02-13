@@ -108,6 +108,7 @@ int		main(int argc, char **argv, char **envp)
 	if (!(parser = malloc(sizeof(t_parser))))
 		del_parser(parser, NULL, 'a');
 	tree = NULL;
+	g_envlst = NULL;
 	while (vars.checker)
 	{
 		vars.loop = TRUE;
@@ -126,7 +127,8 @@ int		main(int argc, char **argv, char **envp)
 		g_envp = envp;
 		parse(parser, &tree);
 		g_root = tree;
-		envp_create_lst(&g_envlst);
+		if (!g_envlst)
+			envp_create_lst(&g_envlst);
 		executor(tree);
 		free_tree(&tree);
 	}

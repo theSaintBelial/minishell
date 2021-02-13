@@ -16,7 +16,7 @@
 *  SORT LIST FUNC IN sort_env_list.c
 */
 
-t_env	*new_lst(char *data, char *value)
+t_env	*new_lst(char *data, char *value, bool visible)
 {
 	t_env *tmp;
 
@@ -25,23 +25,41 @@ t_env	*new_lst(char *data, char *value)
 	{
 		tmp->name = data;
 		tmp->value = value;
-		tmp->visible = TRUE;
+		tmp->visible = visible;
 		tmp->next = NULL;
 	}
 	return (tmp);
 }
 
+t_env	*env_lst_dup(t_env *envlst)
+{
+	t_env	*newlst;
+	t_env	*tmp;
+	t_env 	*new;
+
+	newlst = NULL;
+	tmp = envlst;
+	while (tmp)
+	{
+		new = new_lst(ft_strdup(tmp->name), ft_strdup(tmp->value), tmp->visible);
+		env_list_add_back(&newlst, new);
+		tmp = tmp->next;
+	}
+	return (newlst);
+}
+
 void	del_env_lst(t_env *env)
 {
-	while (env)
+	if (env)
 	{
-		free(env->name);
-		free(env->value);
+		if (env->name)
+			free(env->name);
+		if (env->value)
+			free(env->value);
 		del_env_lst(env->next);
 		free(env);
 	}
 }
-
 
 void	env_list_add_back(t_env **lst, t_env *new)
 {
@@ -104,7 +122,7 @@ void	envp_create_lst(t_env **env)
 				ft_strlcpy(s1, g_envp[i], j + 1);
 				s2 = (char *)malloc(sizeof(char) * ft_strlen(g_envp[i] + j));
 				ft_strlcpy(s2, g_envp[i] + ++j, ft_strlen(g_envp[i] + j));
-				env_list_add_back(env, new_lst(s1, s2));
+				env_list_add_back(env, new_lst(s1, s2, TRUE));
 				break ;
 			}
 			j++;

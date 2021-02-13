@@ -153,16 +153,22 @@ t_ast_tree			*get_arg(char *data, t_ast_tree *left,
 t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
 void				envp_create_lst(t_env **env);
+void				env_list_add_back(t_env **lst, t_env *new);
 void				del_one_lst(t_env **env, char *name);
 void				sort_env_list(t_env *env);
 t_env				*ft_env_find(t_env *envlst, char *data_ref);
+t_env				*new_lst(char *data, char *value, bool visible);
+t_env				*env_lst_dup(t_env *envlst);
+void				del_env_lst(t_env *env);
+
 
 /*
 ** file: executor.c
 ** running all the process
 ** root_ptr - ptr to the root of the tree
 */
-void	executor(t_ast_tree *root_ptr);
+void				executor(t_ast_tree *root_ptr);
+void				env_var_set(char *set, bool visible);
 
 t_ast_tree			*command_node(t_token *list, int type);
 t_ast_tree			*arg_case_sec(t_token **lst, int type);
