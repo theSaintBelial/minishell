@@ -50,7 +50,6 @@ char	get_token(char c)
 ** CHECK EVERY TYPE OF CHAR IN BUFFER (vars->line[i])
 ** CHECK STATUS OF SPECIAL CHAR OR FORWARD SLASH (lexical_analysis.c)
 */
-
 int		lexical_analysis(t_vars *vars, t_parser *parser)
 {
 	t_token		*tmp;
@@ -108,7 +107,6 @@ int		main(int argc, char **argv, char **envp)
 	if (!(parser = malloc(sizeof(t_parser))))
 		del_parser(parser, NULL, 'a');
 	tree = NULL;
-	g_envlst = NULL;
 	while (vars.checker)
 	{
 		vars.loop = TRUE;
@@ -126,11 +124,7 @@ int		main(int argc, char **argv, char **envp)
 		vars.line = NULL;
 		g_envp = envp;
 		parse(parser, &tree);
-		g_root = tree;
-		if (!g_envlst)
-			envp_create_lst(&g_envlst);
 		executor(tree);
-		free_tree(&tree);
 	}
 	return (EXIT_SUCCESS);
 }

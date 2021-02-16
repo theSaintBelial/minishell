@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:16 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/10 20:14:00 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/15 17:07:52 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <string.h>
 # include <errno.h>
 # include <signal.h>
+# include "error.h"
 
 # define PIPE '|'
 # define DOLLAR '$'
@@ -40,6 +41,8 @@
 # define C_CHAR '/'
 # define TOKEN '-'
 # define PROMPT "\033[1;35mour-minishell$>\033[0m"
+
+# define MSH_V "shell_v1.0"
 
 typedef short		bool;
 

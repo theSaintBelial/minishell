@@ -6,13 +6,19 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/11 20:45:54 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/16 12:27:31 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 char	*get_env_value(char *env_name);
+
+void	ft_dup2(int old_fd, int new_fd)
+{
+	check_error(dup2(old_fd, new_fd), "dup2");
+	check_error(close(old_fd), "close");
+}
 
 void	set_dirs_config(t_dirs *config)
 {
@@ -408,7 +414,11 @@ char	**create_cmd(t_ast_tree *root_ptr, int size)
 	return (argv);
 }
 
-void	execute_config(t_ast_tree *root_ptr)
+/*
+** EXECUTE CMD:
+** 	creates cmd config and run it
+*/
+void	execute_cmd(t_ast_tree *root_ptr)
 {
 	t_ast_tree	*tmp;
 	int			size;
@@ -428,6 +438,9 @@ void	execute_config(t_ast_tree *root_ptr)
 	}
 }
 
+/*
+** FIND ENV VAR VALUE AND RETURN IT
+*/
 char	*get_env_value(char *env_name)
 {
 	t_env	*cur;
@@ -443,11 +456,10 @@ char	*get_env_value(char *env_name)
 }
 
 /*
-** EXECUTE LINE:
-** 		1) config < file
-** 		2) config > file
-** 		3) config >> file
-**		4) config
+** EXECUTE IO:
+** 	1) < file
+** 	2) > file
+** 	3) >> file
 */
 void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 {
@@ -491,6 +503,11 @@ void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 	}
 }
 
+/*
+** EXECUTE IO_LIST:
+** 		1) IO IO
+** 		2) IO IOL
+*/
 void	execute_iol(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 {
 	if (root_ptr)
@@ -506,6 +523,13 @@ void	execute_iol(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 	}
 }
 
+/*
+** SETS UP STDOUT AND STDIN
+** AS PIPE OR REDIRECTS REQUIRE
+** 	1) pipes: pipes config
+** 	2) in_out: redirects config
+** 	3) rewrite: is it required to truncate the file in out redirect
+*/
 void	redirect_std_in_out(t_dirs *pipes, char **in_out, bool rewrite)
 {
 	int		fd;
@@ -514,14 +538,13 @@ void	redirect_std_in_out(t_dirs *pipes, char **in_out, bool rewrite)
 	{
 		if ((fd = open(in_out[0], O_RDONLY)) == -1)
 		{
-			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			ft_perror(MSH_V": open");
 			return ;
 		}
-		dup2(fd, STDIN_FILENO);
-		close(fd);
+		ft_dup2(fd, STDIN_FILENO);
 	}
 	else if (pipes->is_in)
-		dup2(pipes->in_fd, STDIN_FILENO);
+		ft_dup2(pipes->in_fd, STDIN_FILENO);
 	if (in_out[1])
 	{
 		if (rewrite)
@@ -530,16 +553,20 @@ void	redirect_std_in_out(t_dirs *pipes, char **in_out, bool rewrite)
 			fd = open(in_out[1], O_WRONLY | O_CREAT | O_APPEND, 0666);
 		if (fd == -1)
 		{
-			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+			ft_perror(MSH_V": open");
 			return ;
 		}
-		dup2(fd, STDOUT_FILENO);
-		close(fd);
+		ft_dup2(fd, STDOUT_FILENO);
 	}
 	else if (pipes->is_out)
-		dup2(pipes->out_fd, STDOUT_FILENO);
+		ft_dup2(pipes->out_fd, STDOUT_FILENO);
 }
 
+/*
+** EXECUTE CMD_IO:
+** 	1) CMD IO
+** 	2) CMD IO_LIST
+*/
 void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
 {
 	bool	rewrite;
@@ -552,10 +579,15 @@ void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
 	if (!g_exit_code)
 	{
 		redirect_std_in_out(pipes, in_out, rewrite);
-		execute_config(root_ptr->left);
+		execute_cmd(root_ptr->left);
 	}
 }
 
+/*
+** EXECUTE JOB:
+** 	1) CMD
+** 	2) CMD_IO
+*/
 void	execute_job(t_ast_tree *root_ptr, t_dirs *pipes)
 {
 	char	*in_out[2];
@@ -573,23 +605,24 @@ void	execute_job(t_ast_tree *root_ptr, t_dirs *pipes)
 		else
 		{
 			redirect_std_in_out(pipes, in_out, FALSE);
-			execute_config(root_ptr);
+			execute_cmd(root_ptr);
 		}
 	}
-	dup2(stdin_fd, STDIN_FILENO);
-	dup2(stdout_fd, STDOUT_FILENO);
+	ft_dup2(stdin_fd, STDIN_FILENO);
+	ft_dup2(stdout_fd, STDOUT_FILENO);
 }
 
-void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
+/*
+** EXECUTE PIPE:
+** 	1) JOB | JOB
+** 	2) JOB | PIPE
+*/
+int		execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
 {
 	int			fd[2];
 	t_ast_tree	*tmp;
 
-	if (pipe(fd) == -1)
-	{
-		ft_putendl_fd(strerror(errno), STDERR_FILENO);
-		return ;
-	}
+	check_error(pipe(fd), MSH_V": pipe");
 	pipes->is_out = TRUE;
 	pipes->out_fd = fd[1];
 	execute_job(root_ptr->left, pipes);
@@ -599,11 +632,7 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
 		close(pipes->out_fd);
 		pipes->is_in = TRUE;
 		pipes->in_fd = fd[0];
-		if (pipe(fd) == -1)
-		{
-			ft_putendl_fd(strerror(errno), STDERR_FILENO);
-			return ;
-		}
+		check_error(pipe(fd), MSH_V": pipe");
 		pipes->is_out = TRUE;
 		pipes->out_fd = fd[1];
 		execute_job(tmp->left, pipes);
@@ -620,8 +649,8 @@ void	execute_job_pipe(t_ast_tree *root_ptr, t_dirs *pipes)
 
 /*
 ** EXECUTE COMMAND:
-** 		1) JOB | COMMAND
-** 		2) JOB
+** 	1) JOB | COMMAND
+** 	2) JOB
 */
 void	execute_command(t_ast_tree *root_ptr)
 {
@@ -639,8 +668,8 @@ void	execute_command(t_ast_tree *root_ptr)
 
 /*
 ** EXECUTE LINE:
-** 		1) COMMAND ; (LINE)?
-** 		2) COMMAND
+** 	1) COMMAND ; (LINE)?
+** 	2) COMMAND
 */
 void	execute_line(t_ast_tree *root_ptr)
 {
@@ -661,6 +690,6 @@ void	execute_line(t_ast_tree *root_ptr)
 */
 void	executor(t_ast_tree *root_ptr)
 {
-	g_exit_code = 0;
 	execute_line(root_ptr);
+	free_tree(&root_ptr);
 }
