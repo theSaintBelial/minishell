@@ -6,16 +6,19 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/15 16:41:30 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/19 13:08:44 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/20 23:16:40 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "errors.h"
 
+extern int	g_exit_code;
+
 void	msg_exit(int error, char *msg)
 {
 	ft_putstr_fd("error: ", STDERR_FILENO);
 	ft_putendl_fd(msg, STDERR_FILENO);
+	g_exit_code = error;
 	exit(error);
 }
 

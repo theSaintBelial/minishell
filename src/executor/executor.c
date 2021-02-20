@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/20 17:14:44 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/21 00:12:34 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,9 @@ char	*get_current_home_path()
 void	cd_exec(t_cmd *cmd)
 {
 	char	*current_home_path;
+	t_env	*tmp;
+	char	*oldpwd;
+	char	*pwd;
 
 	if (cmd->argc > 2)
 		ft_putendl_fd("cd: Too many arguments", 2);
@@ -108,8 +111,21 @@ void	cd_exec(t_cmd *cmd)
 	}
 	else
 	{
+		oldpwd = getcwd(NULL, 0);
 		if (chdir(cmd->argv[1]))
 			ft_putendl_fd(strerror(errno), STDERR_FILENO);
+		pwd = getcwd(NULL, 0);
+		if ((tmp = env_lst_find(g_envlst, "PWD")))
+			tmp->value = ft_strdup(pwd);
+		free(pwd);
+		if ((tmp = env_lst_find(g_envlst, "OLDPWD")))
+			tmp->value = ft_strdup(oldpwd);
+		else
+		{
+			tmp = env_lst_new("OLDPWD", oldpwd, true);
+			env_lst_add_back(&g_envlst, tmp);
+		}
+		free(oldpwd);
 	}
 }
 
@@ -227,10 +243,13 @@ bool	check_for_binary(t_cmd *cmd, int *status)
 	char	**path_dirs;
 	int		i;
 	char	*full_bin;
+	char	**envp;
 
 	if (!(path_dirs = handle_path_dirs()))
 		return (false);
 	i = 0;
+	if (!(envp = env_lst_tostrarr(g_envlst, true)))
+		msg_exit(1, MSH_V" :malloc error");
 	while (path_dirs[i])
 	{
 		if (!(full_bin = get_binary(path_dirs[i], cmd->argv[0])))
@@ -238,13 +257,13 @@ bool	check_for_binary(t_cmd *cmd, int *status)
 			ft_putendl_fd("malloc error", STDERR_FILENO);
 			return (false);
 		}
-		*status = execve(full_bin, cmd->argv, g_envp);
+		*status = execve(full_bin, cmd->argv, envp);
 		free(full_bin);
 		free(path_dirs[i]);
 		i++;
 	}
 	free(path_dirs);
-	if ((*status = execve(cmd->argv[0], cmd->argv, g_envp)) == -1)
+	if ((*status = execve(cmd->argv[0], cmd->argv, envp)) == -1)
 		return (false);
 	return (true);
 }
@@ -419,8 +438,8 @@ char	**create_cmd(t_ast_tree *root_ptr, int size)
 					free_argv(&argv);
 					return (NULL);
 				}
-				tmp = tmp->right;
 			}
+			tmp = tmp->right;
 		}
 	}
 	return (argv);
@@ -603,8 +622,8 @@ void	execute_cmd_io(t_ast_tree *root_ptr, t_dirs *pipes, char **in_out)
 void	execute_job(t_ast_tree *root_ptr, t_dirs *pipes)
 {
 	char	*in_out[2];
-	int stdout_fd;
-	int stdin_fd;
+	int		stdout_fd;
+	int		stdin_fd;
 
 	stdout_fd = dup(STDOUT_FILENO);
 	stdin_fd = dup(STDIN_FILENO);
@@ -702,6 +721,7 @@ void	execute_line(t_ast_tree *root_ptr)
 */
 void	executor(t_ast_tree *root_ptr)
 {
+	env_lst_create(&g_envlst, g_envp);
 	execute_line(root_ptr);
 	free_tree(&root_ptr);
 }

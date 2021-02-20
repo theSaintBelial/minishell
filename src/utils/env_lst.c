@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 13:19:19 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/20 14:11:21 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/20 23:45:23 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ void	env_lst_create(t_env **env, char **envp)
 				ft_strlcpy(s1, envp[i], j + 1);
 				s2 = (char *)malloc(sizeof(char) * ft_strlen(envp[i] + j));
 				j++;
-				ft_strlcpy(s2, envp[i] + j, ft_strlen(envp[i] + j));
+				ft_strlcpy(s2, envp[i] + j, ft_strlen(envp[i] + j) + 1);
 				env_lst_add_back(env, env_lst_new(s1, s2, true));
 				break ;
 			}

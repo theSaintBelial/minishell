@@ -6,13 +6,13 @@
 #    By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/19 20:16:18 by lgorilla          #+#    #+#              #
-#    Updated: 2021/02/20 17:06:15 by lnovella         ###   ########.fr        #
+#    Updated: 2021/02/20 17:32:31 by lnovella         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			:=	minishell
 CC				:=	clang
-# CFLAGS			:=	-Wall -Wextra -Werror
+CFLAGS			:=	-g # -Wall -Wextra -Werror
 INCLUDES		:=	-I./includes -I./libft/includes
 LIBFT			:=	libft.a
 LIBFT_DIR		:=	libft

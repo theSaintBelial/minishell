@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/18 14:19:31 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/20 14:11:30 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/20 23:27:47 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,8 @@ t_env				*env_lst_find(t_env *envlst, char *data_ref);
 t_env				*env_lst_new(char *name, char *value, bool visible);
 t_env				*env_lst_dup(t_env *envlst);
 void				env_lst_clear(t_env *env);
+char				**env_lst_tostrarr(t_env *envlst, bool visible);
+char				*env_lst_node_to_str(t_env *envlst);
+size_t				env_lst_len(t_env *env, bool visible);
 
 #endif
