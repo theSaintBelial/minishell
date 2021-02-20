@@ -6,12 +6,12 @@
 #    By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/19 20:16:18 by lgorilla          #+#    #+#              #
-#    Updated: 2021/02/20 14:06:14 by lnovella         ###   ########.fr        #
+#    Updated: 2021/02/20 17:02:46 by lnovella         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			:=	libft.a
-CC				:=	gcc
+CC				:=	clang
 CFLAGS			:=	-Wall -Wextra -Werror
 INCLUDES		:=	-I./includes
 AR				:=	ar -rcs
@@ -82,11 +82,11 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@echo "$(LGREEN)Linking $(NAME) - C static library$(NOC)"
-	@$(AR) $@ $?
+	$(AR) $@ $?
 	@echo "$(WHITE)...done$(NOC)"
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	@$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)/ft_char
 	@mkdir -p $(OBJDIR)/ft_lst

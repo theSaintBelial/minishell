@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 13:19:19 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/18 15:46:40 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/20 14:11:21 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,14 @@ t_env	*env_lst_dup(t_env *envlst)
 {
 	t_env	*newlst;
 	t_env	*tmp;
-	t_env 	*new;
+	t_env 	*cur;
 
 	newlst = NULL;
 	tmp = envlst;
 	while (tmp)
 	{
-		new = env_lst_new(ft_strdup(tmp->name), ft_strdup(tmp->value), tmp->visible);
-		env_lst_add_back(&newlst, new);
+		cur = env_lst_new(ft_strdup(tmp->name), ft_strdup(tmp->value), tmp->visible);
+		env_lst_add_back(&newlst, cur);
 		tmp = tmp->next;
 	}
 	return (newlst);
@@ -62,21 +62,21 @@ void	env_lst_clear(t_env *env)
 	}
 }
 
-void	env_lst_add_back(t_env **lst, t_env *new)
+void	env_lst_add_back(t_env **lst, t_env *node)
 {
 	t_env *tmp;
 
-	if (!lst || !new)
+	if (!lst || !node)
 		return ;
 	tmp = *lst;
 	if (tmp)
 	{
 		while (tmp->next != NULL)
 			tmp = tmp->next;
-		tmp->next = new;
+		tmp->next = node;
 	}
 	else
-		*lst = new;
+		*lst = node;
 }
 
 void	env_lst_delone(t_env **env, char *name)

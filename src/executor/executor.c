@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/20 13:26:27 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/20 17:14:44 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ t_env		*g_envlst;
 extern char	**g_envp;
 
 void	env_var_set(char *set, bool visible);
-char	*get_env_value(char *env_name);
+char	*get_env_value(t_env *envlst, char *env_name);
 
 void	ft_dup2(int old_fd, int new_fd)
 {
@@ -410,7 +410,7 @@ char	**create_cmd(t_ast_tree *root_ptr, int size)
 		i = 0;
 		while (tmp)
 		{
-			data = (tmp->type == VARIABLE_N ? get_env_value(tmp->data) : tmp->data);
+			data = (tmp->type == VARIABLE_N ? get_env_value(g_envlst, tmp->data) : tmp->data);
 			if (data)
 			{
 				if (!(argv[i++] = ft_strdup(data)))
@@ -453,13 +453,13 @@ void	execute_cmd(t_ast_tree *root_ptr)
 /*
 ** FIND ENV VAR VALUE AND RETURN IT
 */
-char	*get_env_value(char *env_name)
+char	*get_env_value(t_env *envlst, char *env_name)
 {
 	t_env	*cur;
 	char	*env_value;
 
 	env_value = NULL;
-	cur = env_lst_find(g_envlst, env_name);
+	cur = env_lst_find(envlst, env_name);
 	if (cur)
 		env_value = cur->value;
 	else if (ft_strncmp(env_name, "?", 10) == 0)
@@ -481,7 +481,7 @@ void	execute_io(t_ast_tree *root_ptr, char **in_out, bool *rewrite)
 	filename = NULL;
 	if (root_ptr && root_ptr->right)
 	{
-		filename = (root_ptr->right->type == VARIABLE_N ? get_env_value(root_ptr->right->data) : root_ptr->right->data);
+		filename = (root_ptr->right->type == VARIABLE_N ? get_env_value(g_envlst, root_ptr->right->data) : root_ptr->right->data);
 		if (!filename)
 		{
 			ft_putendl_fd("wtf u doin??? redirect error", STDERR_FILENO);

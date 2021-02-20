@@ -6,12 +6,12 @@
 #    By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/19 20:16:18 by lgorilla          #+#    #+#              #
-#    Updated: 2021/02/20 14:06:24 by lnovella         ###   ########.fr        #
+#    Updated: 2021/02/20 17:06:15 by lnovella         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			:=	minishell
-CC				:=	g++
+CC				:=	clang
 # CFLAGS			:=	-Wall -Wextra -Werror
 INCLUDES		:=	-I./includes -I./libft/includes
 LIBFT			:=	libft.a
@@ -41,7 +41,7 @@ EXECUTOR_SRCS	:=	executor.c
 EXECUTOR_SRCS	:=	$(addprefix executor/, $(EXECUTOR_SRCS))
 
 SRCS			:=	main.c
-SRCS			:=	$(UTILS_SRCS) $(LEXER_SRCS) $(PARSER_SRCS) $(EXECUTOR_SRCS)
+SRCS			:=	$(SRCS) $(UTILS_SRCS) $(LEXER_SRCS) $(PARSER_SRCS) $(EXECUTOR_SRCS)
 SRCS			:=	$(addprefix src/, $(SRCS))
 
 OBJS			:=	$(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
@@ -54,14 +54,14 @@ all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT)
 	@echo "$(LGREEN)Linking $(NAME) - executable$(NOC)"
-	@$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $@
 	@echo "$(WHITE)...done$(NOC)"
 
 $(LIBFT):
 	@$(MAKE) -C ./$(LIBFT_DIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
-	@$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 $(OBJDIR):
 	@mkdir -p $(dir $(OBJS))
 
