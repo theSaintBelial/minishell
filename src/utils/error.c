@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/15 16:41:30 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/20 23:16:40 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/24 17:21:51 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,4 +39,10 @@ void	check_error(int ret_func, char *error)
 		ft_perror(error);
 		exit(errno);
 	}
+}
+
+int		putstr_err(char *msg, int ret)
+{
+	ft_putendl_fd(msg, STDERR_FILENO);
+	return (ret);
 }
