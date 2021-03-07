@@ -22,6 +22,7 @@ t_ast_tree			*get_arg(char *data, t_ast_tree *left,
 									t_ast_tree *right, int type);
 t_ast_tree			*arg_case(t_token **lst, int type);
 void				check_left_right(t_ast_tree **node, t_token **tmp);
+size_t				ast_len(t_ast_tree *root);
 void				free_tree(t_ast_tree **root);
 
 #endif

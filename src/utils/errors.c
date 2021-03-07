@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/15 16:41:30 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/24 17:21:51 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/02 12:00:04 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,35 +14,28 @@
 
 extern int	g_exit_code;
 
-void	msg_exit(int error, char *msg)
+void	msg_exit(int error, char *error_place, char *msg)
 {
-	ft_putstr_fd("error: ", STDERR_FILENO);
+	exit(msg_return(error, error_place, msg));
+}
+
+void	ft_perror(char *error_place, char *msg)
+{
+	ft_putstr_fd(MSH_V": ", STDERR_FILENO);
+	ft_putstr_fd(error_place, STDERR_FILENO);
+	ft_putstr_fd(": ", STDERR_FILENO);
 	ft_putendl_fd(msg, STDERR_FILENO);
-	g_exit_code = error;
-	exit(error);
 }
 
-void	ft_perror(char *error)
-{
-	if (error)
-	{
-		ft_putstr_fd(error, STDERR_FILENO);
-		ft_putstr_fd(": ", STDERR_FILENO);
-	}
-	ft_putendl_fd(strerror(errno), STDERR_FILENO);
-}
-
-void	check_error(int ret_func, char *error)
+void	check_error(int ret_func, char *error_place)
 {
 	if (ret_func == -1)
-	{
-		ft_perror(error);
-		exit(errno);
-	}
+		msg_exit(errno, error_place, strerror(errno));
 }
 
-int		putstr_err(char *msg, int ret)
+int		msg_return(int ret, char *error_place, char *msg)
 {
-	ft_putendl_fd(msg, STDERR_FILENO);
+	ft_perror(error_place, msg);
+	g_exit_code = ret;
 	return (ret);
 }

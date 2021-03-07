@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:50:40 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/19 13:19:14 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/02 12:02:14 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ t_ast_tree	*set_node(char *data, int type, t_ast_tree *left, t_ast_tree *right)
 	t_ast_tree *cmd;
 
 	if (!(cmd = malloc(sizeof(*cmd))))
-		return (NULL);
+		msg_exit(EXIT_FAILURE, "parser", ERR_MALLOC);
 	cmd->type = type;
 	cmd->data = data;
 	cmd->left = left;
@@ -44,11 +44,11 @@ t_ast_tree	*get_arg(char *data, t_ast_tree *left, t_ast_tree *right, int type)
 {
 	t_ast_tree	*cmd;
 	char		*str;
-	int			i;
+	size_t		i;
 
 	i = ft_strlen(data);
 	if (!(str = (char*)ft_calloc(i + 1, sizeof(char))))
-		return (NULL);
+		msg_exit(EXIT_FAILURE, "parser", ERR_MALLOC);
 	ft_strlcpy(str, data, i + 1);
 	cmd = set_node(str, type, left, right);
 	return (cmd);
@@ -97,4 +97,19 @@ t_ast_tree	*arg_case(t_token **lst, int type)
 		return (cmd);
 	}
 	return (NULL);
+}
+
+size_t				ast_len(t_ast_tree *root)
+{
+	t_ast_tree	*tmp;
+	size_t		i;
+
+	i = 0;
+	if ((tmp = root))
+		while (tmp)
+		{
+			i++;
+			tmp = tmp->right;
+		}
+	return (i);
 }

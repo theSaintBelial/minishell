@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:16 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/19 13:16:07 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/01 13:30:13 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@
 # include <stdbool.h>
 
 # define PROMPT "\033[1;35mour-minishell$>\033[0m"
-
-# define MSH_V "shell_v1.0"
 
 typedef struct		s_vars
 {

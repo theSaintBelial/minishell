@@ -6,33 +6,12 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:21 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/19 13:21:06 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/02 12:06:37 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
 #include "lexer.h"
-
-void		printtree(t_ast_tree *exectree, int t)
-{
-	if (exectree->left)
-		printtree((exectree)->left, t+1);
-	// if (exectree != NULL)
-	// {
-	// 	printtree((exectree)->right, t+1);
-		// for (i = 1; i <= t; i++)
-		// 	printf(" ");
-		printf("\nLevel: %d\n--------------\n", t);
-		if (exectree->data)
-			printf("%s\n", exectree->data);
-		if (exectree->type)
-			printf("%d\n", exectree->type);
-		if (exectree->right)
-			printtree((exectree)->right, t+1);
-	// 	printf("%s\n", (exectree)->szData);
-	// 	printtree((exectree)->left, t+1);
-	// }
-}
 
 void		sec_comm_node(t_token **tmp, t_ast_tree **left,
 							t_ast_tree **right, char type)
@@ -101,10 +80,7 @@ int			check_grammer(t_token *list, t_ast_tree **tree)
 	else
 		*tree = arg_case(&list, NONE);
 	if (*tree != NULL)
-	{
-		// printtree(*tree, 0);
 		return 1;
-	}
 	return (0);
 }
 
@@ -120,9 +96,12 @@ int			parse(t_parser *parser, t_ast_tree **tree)
 	}
 	else
 	{
-		printf("ERROR\n");
 		tmp = parser->list;
 		del_token(&tmp);
+		//del_parser(parser, NULL, 'a');
+		return (msg_return(1, "parser", "Syntax error"));
 	}
+	// handle syntax errors
+		//msg_exit(EXIT_FAILURE, "parser", ERR_MALLOC);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/18 15:05:51 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/18 15:12:10 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/02 11:51:15 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,22 +57,15 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 	int			i;
 
 	if (!(parser->list = malloc(sizeof(t_token))))
-		del_parser(parser, vars->line, 'a');
-	tmp = parser->list;
-	if (!(init_lst(tmp, new_strlen(vars->line + 0))))
-		del_parser(parser, vars->line, 'a');
+		msg_exit(EXIT_FAILURE, "lexer", "Malloc error");
+	if (!(init_lst(tmp = parser->list, new_strlen(vars->line + 0))))
+		msg_exit(EXIT_FAILURE, "lexer", "Malloc error");
 	vars->count = 0;
-	i = 0;
-	while (vars->line[i])
+	i = -1;
+	while (vars->line[++i])
 	{
 		type = get_token(vars->line[i]);
 		if (check_type_token(type, &tmp, vars, &i) == 0)
-		{
-			tmp = parser->list;
-			del_token(&tmp);
-			del_parser(parser, vars->line, 'o');
-		}
-		i++;
+			msg_exit(EXIT_FAILURE, "lexer", "Malloc error");
 	}
-	return (0);
 }

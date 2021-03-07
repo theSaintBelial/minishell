@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/18 16:05:47 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/18 16:06:16 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/24 20:01:56 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # define C_CHAR '/'
 # define TOKEN '-'
 
+# include "errors.h"
 # include "token_list.h"
 # include "parser.h"
 # include "minishell.h"

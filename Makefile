@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+         #
+#    By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/19 20:16:18 by lgorilla          #+#    #+#              #
-#    Updated: 2021/02/20 17:32:31 by lnovella         ###   ########.fr        #
+#    Updated: 2021/03/05 12:11:04 by thesaintbel      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ OBJDIR			:=	.obj
 
 UTILS_SRCS		:=	env_lst.c \
 					env_lst_add.c \
-					error.c \
+					errors.c \
 					cleaner.c \
 					free.c \
 					struct_init.c \
@@ -37,7 +37,9 @@ PARSER_SRCS		:=	parse_syntax.c \
 					token_checker.c
 PARSER_SRCS		:=	$(addprefix parser/, $(PARSER_SRCS))
 
-EXECUTOR_SRCS	:=	executor.c
+EXECUTOR_SRCS	:=	executor.c \
+					cmd.c \
+					builtin.c
 EXECUTOR_SRCS	:=	$(addprefix executor/, $(EXECUTOR_SRCS))
 
 SRCS			:=	main.c

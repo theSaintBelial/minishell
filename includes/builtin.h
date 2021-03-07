@@ -1,28 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor.h                                         :+:      :+:    :+:   */
+/*   builtin.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
+/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/19 13:12:53 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/01 14:18:39 by lnovella         ###   ########.fr       */
+/*   Created: 2021/03/05 12:04:04 by thesaintbel       #+#    #+#             */
+/*   Updated: 2021/03/05 12:40:08 by thesaintbel      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EXECUTOR_H
-# define EXECUTOR_H
+#ifndef BUILTIN_H
+# define BUILTIN_H
 
-# include "ast.h"
+# include "cmd.h"
 
-typedef struct	s_dirs
-{
-	bool		is_in;
-	bool		is_out;
-	int			in_fd;
-	int			out_fd;
-}				t_dirs;
-
-void				executor(t_ast_tree *root_ptr);
+void	env_exec(t_cmd *cmd);
+void	unset_exec(t_cmd *cmd);
+void	export_exec(t_cmd *cmd);
+int		cd_exec(t_cmd *cmd);
+void	pwd_exec();
+void	echo_exec(t_cmd *cmd);
 
 #endif

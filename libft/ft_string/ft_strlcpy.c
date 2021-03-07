@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/16 12:59:01 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/16 13:07:13 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/02/24 20:00:42 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
 	size_t	i;
-	int		j;
+	size_t	j;
 
 	j = 0;
 	i = 0;

@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   env_lst_add.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
+/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:48:49 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/20 23:44:54 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/07 09:42:14 by thesaintbel      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "env_lst.h"
 #include <ft_string.h>
 #include <ft_stdlib.h>
+#include "minishell.h"
+#include "errors.h"
 
 void	ft_str_swap(char **s1, char **s2)
 {
@@ -109,4 +111,59 @@ char	**env_lst_tostrarr(t_env *envlst, bool visible)
 		}
 	}
 	return (envp);
+}
+
+char	*env_lst_getval(t_env *envlst, char *name)
+{
+	extern int	g_exit_code;
+	t_env		*node;
+	char		*value;
+
+	if (!ft_strncmp(name, "?", 10))
+	{
+		if (!(value = ft_itoa(g_exit_code)))
+			msg_exit(EXIT_FAILURE, "env_lst", "Malloc error");
+	}
+	else
+		value = ((node = env_lst_find(envlst, name)) ? ft_strdup(node->value) : NULL);
+	return (value);
+}
+
+void	env_lst_set(t_env *envlst, char *set, bool visible)
+{
+	char	**env_var;
+	t_env	*env;
+
+	if (set)
+	{
+		if (!(env_var = ft_split(set, '=')))
+			msg_exit(EXIT_FAILURE, "env_lst", "Malloc error");
+		if ((env = env_lst_find(envlst, env_var[0])))
+			env->value = env_var[1];
+		else
+		{
+			if (!(env = env_lst_new(env_var[0], env_var[1], visible)))
+				msg_exit(EXIT_FAILURE, "env_lst", "Malloc error");
+			env_lst_add_back(&envlst, env);
+		}
+	}
+}
+
+void 	print_env_lst(t_env *envlst, bool visible)
+{
+	t_env	*tmp;
+
+	tmp = envlst;
+	while (tmp)
+	{
+		if (!visible || tmp->visible)
+		{
+			if (visible)
+				ft_putstr_fd("export ", STDOUT_FILENO);
+			ft_putstr_fd(tmp->name, STDOUT_FILENO);
+			ft_putstr_fd("=", STDOUT_FILENO);
+			ft_putendl_fd(tmp->value, STDOUT_FILENO);
+		}
+		tmp = tmp->next;
+	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_lst.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
+/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 13:19:19 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/20 23:45:23 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/07 09:33:23 by thesaintbel      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ t_env	*env_lst_new(char *name, char *value, bool visible)
 {
 	t_env *tmp;
 
+	if (!(name && value))
+		return (NULL);
 	tmp = (t_env*)malloc(sizeof(t_env));
 	if (tmp != NULL)
 	{
@@ -42,7 +44,11 @@ t_env	*env_lst_dup(t_env *envlst)
 	tmp = envlst;
 	while (tmp)
 	{
-		cur = env_lst_new(ft_strdup(tmp->name), ft_strdup(tmp->value), tmp->visible);
+		if (!(cur = env_lst_new(ft_strdup(tmp->name), ft_strdup(tmp->value), tmp->visible)))
+		{
+			env_lst_clear(newlst);
+			return (NULL);
+		}
 		env_lst_add_back(&newlst, cur);
 		tmp = tmp->next;
 	}
@@ -79,7 +85,7 @@ void	env_lst_add_back(t_env **lst, t_env *node)
 		*lst = node;
 }
 
-void	env_lst_delone(t_env **env, char *name)
+bool	env_lst_delone(t_env **env, char *name)
 {
 	t_env *tmp;
 	t_env *tmp2;
@@ -87,7 +93,7 @@ void	env_lst_delone(t_env **env, char *name)
 
 	tmp = *env;
 	if (name == NULL)
-		return ;
+		return (false);
 	while (tmp)
 	{
 		if (ft_strncmp(name, tmp->name, ft_strlen(tmp->name)) == 0)
@@ -98,10 +104,12 @@ void	env_lst_delone(t_env **env, char *name)
 			free(tmp);
 			tmp = tmp2;
 			tmp->next = tmp3;
+			return (true);
 		}
 		tmp2 = tmp;
 		tmp = tmp->next;
 	}
+	return (false);
 }
 
 void	env_lst_create(t_env **env, char **envp)

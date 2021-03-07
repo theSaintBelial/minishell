@@ -1,28 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor.h                                         :+:      :+:    :+:   */
+/*   cmd.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
+/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/19 13:12:53 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/01 14:18:39 by lnovella         ###   ########.fr       */
+/*   Created: 2021/03/01 14:16:47 by lnovella          #+#    #+#             */
+/*   Updated: 2021/03/05 12:25:31 by thesaintbel      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EXECUTOR_H
-# define EXECUTOR_H
+#ifndef CMD_H
+
+# define CMD_H
 
 # include "ast.h"
+# include "builtin.h"
 
-typedef struct	s_dirs
+typedef struct	s_cmd
 {
-	bool		is_in;
-	bool		is_out;
-	int			in_fd;
-	int			out_fd;
-}				t_dirs;
+	char		**argv;
+	int			argc;
+}				t_cmd;
 
-void				executor(t_ast_tree *root_ptr);
+void			free_argv(char ***argv);
+char			**create_cmd(t_ast_tree *root_ptr, int *argc);
+void			execute_cmd(t_ast_tree *root_ptr);
+void			cmd_exec(t_cmd *cmd);
 
 #endif

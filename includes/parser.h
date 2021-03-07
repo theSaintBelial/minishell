@@ -3,6 +3,7 @@
 
 # include "token_list.h"
 # include "ast.h"
+# include "errors.h"
 
 /*
 ** AST NODE TYPE
