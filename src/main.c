@@ -3,32 +3,33 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:01 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/03/07 10:56:47 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/09 12:52:15 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
 #include "lexer.h"
+#include "executor.h"
 #include "env_lst.h"
 
 t_env	*g_envlst;
 
 void	sigint_handler(int n)
 {
-	write(STDOUT_FILENO, "\b\b  \b\b", 6);
-	ft_putendl_fd("", 1);
+	ft_putendl_fd("\b\b  \b\b", STDOUT_FILENO);
 	ft_putstr_fd(PROMPT, STDOUT_FILENO);
 	(void)n;
 }
 
 void	sigquit_handler(int n)
 {
-	write(STDOUT_FILENO, "\b\b  \b\b", 6);
+	ft_putstr_fd("\b\b  \b\b", STDOUT_FILENO);
 	(void)n;
 }
+
 void	handle_signals()
 {
 	signal(SIGINT, sigint_handler);
@@ -63,7 +64,7 @@ int		main(int argc, char **argv, char **envp)
 		free(vars.line);
 		vars.line = NULL;
 		parse(parser, &tree);
-		if (!g_envlst)
+yyyyyyyyyyyyyyyyyyyyyyyyyy		if (!g_envlst)
 			env_lst_create(&g_envlst, envp);
 		executor(tree);
 		vars.checker = false;

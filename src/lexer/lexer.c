@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/18 15:05:51 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/02 11:51:15 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/08 23:07:15 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ char	get_token(char c)
 ** CHECK EVERY TYPE OF CHAR IN BUFFER (vars->line[i])
 ** CHECK STATUS OF SPECIAL CHAR OR FORWARD SLASH (lexical_analysis.c)
 */
-int		lexical_analysis(t_vars *vars, t_parser *parser)
+void	lexical_analysis(t_vars *vars, t_parser *parser)
 {
 	t_token		*tmp;
 	char		type;
@@ -58,7 +58,8 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 
 	if (!(parser->list = malloc(sizeof(t_token))))
 		msg_exit(EXIT_FAILURE, "lexer", "Malloc error");
-	if (!(init_lst(tmp = parser->list, new_strlen(vars->line + 0))))
+	tmp = parser->list;
+	if (!(init_lst(tmp, new_strlen(vars->line + 0))))
 		msg_exit(EXIT_FAILURE, "lexer", "Malloc error");
 	vars->count = 0;
 	i = -1;
@@ -68,4 +69,5 @@ int		lexical_analysis(t_vars *vars, t_parser *parser)
 		if (check_type_token(type, &tmp, vars, &i) == 0)
 			msg_exit(EXIT_FAILURE, "lexer", "Malloc error");
 	}
+	// del_token(&(parser->list));
 }

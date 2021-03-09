@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:50:54 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/24 18:47:52 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/08 16:51:29 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "lexer.h"
 #include "token_list.h"
 #include <ft_char.h>
+#include <ft_string.h>
 
 /*
 ** CHECK TYPE OF SPECIAL CHAR, STATUS OF FORWARD SLASH IS NORM
@@ -22,8 +23,8 @@
 
 int new_strlen(char *str)
 {
-	int i;
-	int len;
+	int		i;
+	int		len;
 
 	i = 0;
 	len = 0;
@@ -106,7 +107,6 @@ int	another_special_tokens(char type, t_token **tmp, t_vars *vars, int *i)
 ** CHECK TYPE OF SPECIAL CHAR, STATUS OF FORWARD SLASH IS NORM
 ** TO INIT NEW NODE ---> struct_init.c
 */
-
 int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 {
 	if (type == SPACE)
@@ -123,8 +123,9 @@ int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 			if (get_next_node(tmp, vars, *i) == 0)
 				return (0);
 		(*tmp)->data[0] = type;
-		(*tmp)->data[1] = '\0';
 		(*tmp)->type = type;
+		if (vars->line[(*i) + 1] == ' ')
+			(*i) += 2;
 		if (!(init_new_node(tmp, new_strlen(vars->line + (*i)))))
 			return (0);
 		return (1);

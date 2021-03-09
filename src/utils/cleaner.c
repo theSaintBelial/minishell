@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cleaner.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
+/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:50:33 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/02/19 13:11:20 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/07 12:39:43 by thesaintbel      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

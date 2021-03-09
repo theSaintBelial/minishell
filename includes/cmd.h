@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/01 14:16:47 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/05 12:25:31 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/07 21:49:16 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 # define CMD_H
 
 # include "ast.h"
-# include "builtin.h"
 
 typedef struct	s_cmd
 {

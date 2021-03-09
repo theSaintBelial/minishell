@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:50:40 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/03/02 12:02:14 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/08 23:45:59 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,31 @@ t_ast_tree	*arg_case(t_token **lst, int type)
 		cmd = get_arg(tmp->data, NULL, right, type);
 		if (tmp->next != NULL)
 			*lst = tmp->next;
+		return (cmd);
+	}
+	return (NULL);
+}
+
+t_ast_tree	*arg_case_test(t_token *lst, int type)
+{
+	t_token		*tmp;
+	t_ast_tree	*cmd;
+	t_ast_tree	*right;
+
+	tmp = lst;
+	if (tmp != NULL && tmp->type == DOLLAR)
+	{
+		tmp = tmp->next;
+		type = VARIABLE_N;
+	}
+	else
+		type = NONE;
+	if (tmp != NULL && tmp->type == TOKEN)
+	{
+		right = arg_case_test((tmp->next), type);
+		cmd = get_arg(tmp->data, NULL, right, type);
+		if (tmp->next != NULL)
+			lst = tmp->next;
 		return (cmd);
 	}
 	return (NULL);

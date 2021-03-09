@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 20:02:55 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/05 12:15:50 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/08 15:44:38 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ bool	check_for_binary(t_cmd *cmd, int *status)
 		return (false);
 	i = 0;
 	if (!(envp = env_lst_tostrarr(g_envlst, true)))
-		msg_exit(EXIT_FAILURE, MSH_V": ", "Malloc error");
+		msg_exit(EXIT_FAILURE, "envp", "Malloc error");
 	while (path_dirs[i])
 	{
 		if (!(full_bin = get_binary(path_dirs[i], cmd->argv[0])))
@@ -89,7 +89,11 @@ bool	check_for_binary(t_cmd *cmd, int *status)
 	}
 	free(path_dirs);
 	if ((*status = execve(cmd->argv[0], cmd->argv, envp)) == -1)
+	{
+		free_argv(&envp);
 		return (false);
+	}
+	free_argv(&envp);
 	return (true);
 }
 
@@ -120,8 +124,9 @@ void	default_bin_exec(t_cmd *cmd)
 		signal(SIGTERM, SIG_DFL);
 		if (!check_for_binary(cmd, &status))
 		{
-			ft_putendl_fd(strerror(errno), STDERR_FILENO);
-			exit(WEXITSTATUS(status));
+			// ft_perror("execve", strerror(errno));
+			// exit(WEXITSTATUS(status));
+			msg_exit(WEXITSTATUS(status), "execve", strerror(errno));
 		}
 	}
 	else

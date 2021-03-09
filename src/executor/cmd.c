@@ -6,7 +6,7 @@
 /*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/01 14:17:07 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/05 12:18:37 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/07 12:02:52 by thesaintbel      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "env_lst.h"
 #include <ft_string.h>
 #include <ft_stdlib.h>
+#include "builtin.h"
 
 extern t_env	*g_envlst;
 extern int		g_exit_code;

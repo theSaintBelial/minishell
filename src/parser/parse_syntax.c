@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:21 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/03/02 12:06:37 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/08 23:44:55 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ t_ast_tree	*command_node(t_token *list, int type)
 	left = NULL;
 	right = NULL;
 	tmp = list;
+	// sec_comm_node(tmp, &left, &right, 'l');
 	sec_comm_node(&tmp, &left, &right, 'l');
 	if (tmp == NULL)
 	{
@@ -58,6 +59,7 @@ t_ast_tree	*command_node(t_token *list, int type)
 		cmd = set_node(NULL, SEMICOLON_N, left, NULL);
 		return (cmd);
 	}
+	// sec_comm_node(tmp, &left, &right, 'r');
 	sec_comm_node(&tmp, &left, &right, 'r');
 	if (left == NULL || right == NULL)
 		return (NULL);
@@ -67,18 +69,24 @@ t_ast_tree	*command_node(t_token *list, int type)
 
 int			check_grammer(t_token *list, t_ast_tree **tree)
 {
+	t_token	*buf;
+
 	if (first_case_semicolon(list) == 1)
 		*tree = command_node(list, SEMICOLON_N);
 	else if (check_pipe(list) == 1)
+		// *tree = pipe_com_node(list);
 		*tree = pipe_com_node(&list);
 	else if (check_lesser_bigger(list) == 1)
+		// *tree = lesser_bigger_com_node(list, LESS_N, NONE, 0);
 		*tree = lesser_bigger_com_node(&list, LESS_N, NONE, 0);
 	else if (check_lesser_bigger(list) == 2)
+		// *tree = lesser_bigger_com_node(list, GREATER_N, NONE, 0);
 		*tree = lesser_bigger_com_node(&list, GREATER_N, NONE, 0);
 	else if (check_lesser_bigger(list) == 3)
+		// *tree = lesser_bigger_com_node(list, D_GREATER_N, NONE, 0);
 		*tree = lesser_bigger_com_node(&list, D_GREATER_N, NONE, 0);
 	else
-		*tree = arg_case(&list, NONE);
+		*tree = arg_case_test(list, NONE);
 	if (*tree != NULL)
 		return 1;
 	return (0);
