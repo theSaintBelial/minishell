@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_lst.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/18 14:19:31 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/07 09:32:59 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/18 19:34:57 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include <stdlib.h>
 # include <stdbool.h>
 
-typedef struct 		s_env
+typedef struct		s_env
 {
 	char			*name;
 	char			*value;
@@ -37,6 +37,6 @@ char				*env_lst_node_to_str(t_env *envlst);
 size_t				env_lst_len(t_env *env, bool visible);
 char				*env_lst_getval(t_env *envlst, char *name);
 void				env_lst_set(t_env *envlst, char *set, bool visible);
-void 				print_env_lst(t_env *envlst, bool visible);
+void				print_env_lst(t_env *envlst, bool visible);
 
 #endif

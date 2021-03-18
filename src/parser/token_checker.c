@@ -6,63 +6,61 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:37 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/03/02 11:57:17 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/18 20:14:45 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
 #include "lexer.h"
 
-t_ast_tree	*pipe_com_node(t_token **tmp)
-{
+extern t_token	*g_node;
 
+t_ast_tree	*pipe_com_node(void)
+{
 	t_ast_tree *cmd;
 	t_ast_tree *left;
 	t_ast_tree *right;
 
 	left = NULL;
 	right = NULL;
-	check_left_right(&left, tmp);
-	if ((*tmp)->type == PIPE)
-		(*tmp) = (*tmp)->next;
-	if (check_pipe(*tmp) == 1)
-		right = pipe_com_node(tmp);
+	check_left_right(&left);
+	if (g_node->type == PIPE)
+		g_node = g_node->next;
+	if (check_pipe(g_node) == 1)
+		right = pipe_com_node();
 	else
-		check_left_right(&right, tmp);
+		check_left_right(&right);
 	if (right == NULL || left == NULL)
-		return (NULL);
+		return (free_nodes(&left, &right));
 	cmd = set_node(NULL, PIPE_N, left, right);
 	return (cmd);
 }
 
-t_ast_tree	*lesser_bigger_com_node(t_token **tmp, int type,
+t_ast_tree	*lesser_bigger_com_node(t_token *node, int type,
 									int ex_type, int flag)
 {
-	t_ast_tree *cmd;
 	t_ast_tree *left;
 	t_ast_tree *right;
 
 	left = NULL;
 	right = NULL;
-	left = arg_case_sec(tmp, ex_type);
-	if ((*tmp)->type == LESS_THEN || (*tmp)->type == GREATER_THEN)
-		(*tmp) = (*tmp)->next;
-	if ((*tmp)->type == GREATER_THEN)
-		(*tmp) = (*tmp)->next;
-	if (check_lesser_bigger(*tmp) == 1)
-		right = lesser_bigger_com_node(tmp, LESS_N, type, 1);
-	else if (check_lesser_bigger(*tmp) == 2)
-		right = lesser_bigger_com_node(tmp, GREATER_N, type, 1);
-	else if (check_lesser_bigger(*tmp) == 3)
-		right = lesser_bigger_com_node(tmp, D_GREATER_N, type, 1);
+	left = arg_case_sec(g_node, ex_type);
+	node = g_node;
+	if (node->type == LESS_THEN || node->type == GREATER_THEN)
+		g_node = node->next;
+	if (g_node->type == GREATER_THEN)
+		g_node = g_node->next;
+	if (check_lesser_bigger(g_node) == 1)
+		right = lesser_bigger_com_node(g_node, LESS_N, type, 1);
+	else if (check_lesser_bigger(g_node) == 2)
+		right = lesser_bigger_com_node(g_node, GREATER_N, type, 1);
+	else if (check_lesser_bigger(g_node) == 3)
+		right = lesser_bigger_com_node(g_node, D_GREATER_N, type, 1);
 	else
-		right = arg_case_sec(tmp, type);
+		right = arg_case_sec(g_node, type);
 	if (right == NULL || left == NULL)
-		return (NULL);
-	if (flag == 0)
-		return (cmd = set_node(NULL, CMD_IO_N, left, right));
-	else
-		return (cmd = set_node(NULL, IO_LIST_N, left, right));
+		return (free_nodes(&left, &right));
+	return (set_node(NULL, flag == 0 ? CMD_IO_N : IO_LIST_N, left, right));
 }
 
 int			first_case_semicolon(t_token *list)

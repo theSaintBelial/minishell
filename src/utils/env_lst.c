@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_lst.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/10 13:19:19 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/03/07 09:33:23 by thesaintbel      ###   ########.fr       */
+/*   Created: 2021/03/18 19:56:45 by lnovella          #+#    #+#             */
+/*   Updated: 2021/03/18 19:58:28 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <ft_string.h>
 
 /*
-*  SORT LIST FUNC IN env_lst_sort.c
+**  SORT LIST FUNC IN env_lst_sort.c
 */
 
 t_env	*env_lst_new(char *name, char *value, bool visible)
@@ -38,13 +38,14 @@ t_env	*env_lst_dup(t_env *envlst)
 {
 	t_env	*newlst;
 	t_env	*tmp;
-	t_env 	*cur;
+	t_env	*cur;
 
 	newlst = NULL;
 	tmp = envlst;
 	while (tmp)
 	{
-		if (!(cur = env_lst_new(ft_strdup(tmp->name), ft_strdup(tmp->value), tmp->visible)))
+		if (!(cur = env_lst_new(ft_strdup(tmp->name),
+		ft_strdup(tmp->value), tmp->visible)))
 		{
 			env_lst_clear(newlst);
 			return (NULL);
@@ -53,19 +54,6 @@ t_env	*env_lst_dup(t_env *envlst)
 		tmp = tmp->next;
 	}
 	return (newlst);
-}
-
-void	env_lst_clear(t_env *env)
-{
-	if (env)
-	{
-		if (env->name)
-			free(env->name);
-		if (env->value)
-			free(env->value);
-		env_lst_clear(env->next);
-		free(env);
-	}
 }
 
 void	env_lst_add_back(t_env **lst, t_env *node)
@@ -83,33 +71,6 @@ void	env_lst_add_back(t_env **lst, t_env *node)
 	}
 	else
 		*lst = node;
-}
-
-bool	env_lst_delone(t_env **env, char *name)
-{
-	t_env *tmp;
-	t_env *tmp2;
-	t_env *tmp3;
-
-	tmp = *env;
-	if (name == NULL)
-		return (false);
-	while (tmp)
-	{
-		if (ft_strncmp(name, tmp->name, ft_strlen(tmp->name)) == 0)
-		{
-			tmp3 = tmp->next;
-			free(tmp->name);
-			free(tmp->value);
-			free(tmp);
-			tmp = tmp2;
-			tmp->next = tmp3;
-			return (true);
-		}
-		tmp2 = tmp;
-		tmp = tmp->next;
-	}
-	return (false);
 }
 
 void	env_lst_create(t_env **env, char **envp)

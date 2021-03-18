@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/01 14:17:07 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/07 12:02:52 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/18 22:08:47 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <ft_string.h>
 #include <ft_stdlib.h>
 #include "builtin.h"
+#include "executor.h"
 
 extern t_env	*g_envlst;
 extern int		g_exit_code;
@@ -46,32 +47,42 @@ char			**create_cmd(t_ast_tree *root_ptr, int *argc)
 	size_t		i;
 	char		*data;
 
-	argv = NULL;
-	if (root_ptr)
+	if (!root_ptr || !(argv = (char **)ft_calloc(*argc + 1, sizeof(char *))))
+		return (NULL);
+	tmp = root_ptr;
+	i = 0;
+	while (tmp)
 	{
-		if (!(argv = (char **)ft_calloc(*argc + 1, sizeof(char *))))
-			return (NULL);
-		tmp = root_ptr;
-		i = 0;
-		while (tmp)
+		if (tmp->type == VARIABLE_N)
+			data = env_lst_getval(g_envlst, tmp->data);
+		else if (!(data = ft_strdup(tmp->data)))
+			msg_exit(EXIT_FAILURE, "cmd", ERR_MALLOC);
+		if (data)
 		{
-			if ((data = (tmp->type == VARIABLE_N ? \
-					env_lst_getval(g_envlst, tmp->data) : tmp->data)))
-			{
-				if (!(argv[i++] = ft_strdup(data)))
-				{
-					free_argv(&argv);
-					return (NULL);
-				}
-			}
-			tmp = tmp->right;
+			if (!(argv[i++] = ft_strdup(data)))
+				return (NULL);
+			free(data);
 		}
-		*argc = i;
+		tmp = tmp->right;
 	}
+	*argc = i;
 	return (argv);
 }
 
-void	cmd_exec(t_cmd *cmd)
+void			env_vars_set(t_cmd *cmd)
+{
+	size_t		i;
+
+	i = 0;
+	while (cmd->argv[i])
+	{
+		env_lst_set(g_envlst, cmd->argv[i], false);
+		i++;
+	}
+	g_exit_code = EXIT_SUCCESS;
+}
+
+void			cmd_exec(t_cmd *cmd)
 {
 	char	*bin;
 
@@ -94,10 +105,7 @@ void	cmd_exec(t_cmd *cmd)
 		exit(g_exit_code);
 	}
 	else if (ft_strchr(bin, '='))
-	{
-		for (int i = 0; cmd->argv[i]; i++)
-			env_lst_set(g_envlst, cmd->argv[i], false);
-	}
+		env_vars_set(cmd);
 	else
 		default_bin_exec(cmd);
 }
@@ -106,9 +114,9 @@ void	cmd_exec(t_cmd *cmd)
 ** EXECUTE CMD:
 ** 	creates cmd config and run it
 */
-void	execute_cmd(t_ast_tree *root_ptr)
+
+void			execute_cmd(t_ast_tree *root_ptr)
 {
-	t_ast_tree	*tmp;
 	t_cmd		cmd;
 
 	if (root_ptr)

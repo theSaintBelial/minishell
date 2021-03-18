@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/18 16:05:47 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/07 12:08:32 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/18 19:35:07 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

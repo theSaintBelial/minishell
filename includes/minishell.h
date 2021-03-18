@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:51:16 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/03/01 13:30:13 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/18 19:31:02 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 # include <string.h>
 # include <errno.h>
 # include <signal.h>
-
 # include <stdbool.h>
 
 # define PROMPT "\033[1;35mour-minishell$>\033[0m"
@@ -36,11 +35,5 @@ typedef struct		s_vars
 	int				loop;
 	int				checker;
 }					t_vars;
-
-/*
-** file: executor.c
-** running all the process
-** root_ptr - ptr to the root of the tree
-*/
 
 #endif

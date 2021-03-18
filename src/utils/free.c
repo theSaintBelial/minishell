@@ -5,14 +5,36 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/27 11:37:00 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/18 15:36:20 by lnovella         ###   ########.fr       */
+/*   Created: 2021/03/18 19:51:49 by lnovella          #+#    #+#             */
+/*   Updated: 2021/03/18 19:51:51 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ast.h"
 
-void	free_tree(t_ast_tree **root)
+size_t				ast_len(t_ast_tree *root)
+{
+	t_ast_tree	*tmp;
+	size_t		i;
+
+	i = 0;
+	if ((tmp = root))
+		while (tmp)
+		{
+			i++;
+			tmp = tmp->right;
+		}
+	return (i);
+}
+
+t_ast_tree			*free_nodes(t_ast_tree **left, t_ast_tree **right)
+{
+	free_tree(left);
+	free_tree(right);
+	return (NULL);
+}
+
+void				free_tree(t_ast_tree **root)
 {
 	if (root && *root)
 	{
@@ -23,4 +45,14 @@ void	free_tree(t_ast_tree **root)
 		free(*root);
 		*root = NULL;
 	}
+}
+
+bool				ft_free(char **ptr)
+{
+	if (ptr && *ptr)
+	{
+		free(*ptr);
+		*ptr = NULL;
+	}
+	return (true);
 }

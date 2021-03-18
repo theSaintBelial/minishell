@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/18 15:05:51 by lnovella          #+#    #+#             */
-/*   Updated: 2021/03/08 23:07:15 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/18 20:09:59 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ char	get_token(char c)
 ** CHECK EVERY TYPE OF CHAR IN BUFFER (vars->line[i])
 ** CHECK STATUS OF SPECIAL CHAR OR FORWARD SLASH (lexical_analysis.c)
 */
+
 void	lexical_analysis(t_vars *vars, t_parser *parser)
 {
 	t_token		*tmp;
@@ -69,5 +70,4 @@ void	lexical_analysis(t_vars *vars, t_parser *parser)
 		if (check_type_token(type, &tmp, vars, &i) == 0)
 			msg_exit(EXIT_FAILURE, "lexer", "Malloc error");
 	}
-	// del_token(&(parser->list));
 }

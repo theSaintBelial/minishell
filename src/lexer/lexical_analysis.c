@@ -6,7 +6,7 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/10 18:50:54 by lgorilla          #+#    #+#             */
-/*   Updated: 2021/03/08 16:51:29 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/18 20:10:32 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,24 +21,28 @@
 ** IF type == FORWARD_SLASH ---> CHANGING STATUS OF F_SLASH
 */
 
-int new_strlen(char *str)
+int	new_strlen(char *str)
 {
 	int		i;
 	int		len;
 
 	i = 0;
 	len = 0;
+	if (str[i] == SPACE || str[i] == SEMICOLON || str[i] == PIPE
+	|| str[i] == GREATER_THEN || str[i] == LESS_THEN || str[i] == DOLLAR)
+		i++;
 	while (str[i])
 	{
-		if (str[i] != ';' || str[i] != ' ')
+		if (str[i] == SPACE || str[i] == SEMICOLON || str[i] == PIPE
+		|| str[i] == GREATER_THEN || str[i] == LESS_THEN || str[i] == DOLLAR)
 		{
-			if (str[i] == DOUBLE_SLASH)
-				i++;
-			if (ft_isprint(str[i]) == 1)
-				len++;
-		}
-		if (str[i] == ';' || str[i] == ' ')
+			if (len == 0)
+				return (1);
 			return (len);
+		}
+		if (str[i] == DOUBLE_SLASH)
+			i++;
+		len++;
 		i++;
 	}
 	return (len);
@@ -107,6 +111,7 @@ int	another_special_tokens(char type, t_token **tmp, t_vars *vars, int *i)
 ** CHECK TYPE OF SPECIAL CHAR, STATUS OF FORWARD SLASH IS NORM
 ** TO INIT NEW NODE ---> struct_init.c
 */
+
 int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 {
 	if (type == SPACE)
@@ -116,7 +121,7 @@ int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 				return (0);
 		return (1);
 	}
-	if (type == SEMICOLON || type == PIPE
+	else if (type == SEMICOLON || type == PIPE
 	|| type == GREATER_THEN || type == LESS_THEN || type == DOLLAR)
 	{
 		if (vars->count > 0)
@@ -125,7 +130,7 @@ int	check_type_token(char type, t_token **tmp, t_vars *vars, int *i)
 		(*tmp)->data[0] = type;
 		(*tmp)->type = type;
 		if (vars->line[(*i) + 1] == ' ')
-			(*i) += 2;
+			(*i)++;
 		if (!(init_new_node(tmp, new_strlen(vars->line + (*i)))))
 			return (0);
 		return (1);

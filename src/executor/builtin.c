@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+        */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/05 12:04:01 by thesaintbel       #+#    #+#             */
-/*   Updated: 2021/03/07 12:03:00 by thesaintbel      ###   ########.fr       */
+/*   Updated: 2021/03/18 22:23:22 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void			echo_exec(t_cmd *cmd)
 	g_exit_code = EXIT_SUCCESS;
 }
 
-void			pwd_exec()
+void			pwd_exec(void)
 {
 	char	*dir;
 
@@ -66,7 +66,11 @@ bool			env_lst_update_value(t_env *envlst, char *name, char *value)
 	if (!name || !value)
 		return (false);
 	if ((tmp = env_lst_find(envlst, name)))
-		tmp->value = ft_strdup(value);
+	{
+		ft_free(&tmp->value);
+		if (!(tmp->value = ft_strdup(value)))
+			msg_exit(EXIT_FAILURE, "cd", ERR_MALLOC);
+	}
 	else
 	{
 		if (!(tmp = env_lst_new(ft_strdup(name), ft_strdup(value), true)))
@@ -80,7 +84,6 @@ int				cd2path_exec(t_cmd *cmd)
 {
 	char	*oldpwd;
 	char	*pwd;
-	t_env	*tmp;
 
 	if (!(oldpwd = getcwd(NULL, 0)))
 		return (msg_return(errno, "getcwd", strerror(errno)));
@@ -101,9 +104,6 @@ int				cd2path_exec(t_cmd *cmd)
 int				cd_exec(t_cmd *cmd)
 {
 	char	*home_path;
-	t_env	*tmp;
-	char	*oldpwd;
-	char	*pwd;
 
 	if (cmd->argc > 2)
 		return (msg_return(EXIT_FAILURE, "cd", "Too many arguments"));
@@ -119,58 +119,3 @@ int				cd_exec(t_cmd *cmd)
 		return (g_exit_code = cd2path_exec(cmd));
 	return ((g_exit_code = EXIT_SUCCESS));
 }
-
-void			export_exec(t_cmd *cmd)
-{
-	t_env	*cpy;
-	t_env	*tmp;
-	int		i;
-
-	if (cmd->argc == 1)
-	{
-		if (!(cpy = env_lst_dup(g_envlst)))
-			msg_exit(EXIT_FAILURE, "export", "Malloc error");
-		env_lst_sort(cpy);
-		print_env_lst(cpy, true);
-		env_lst_clear(cpy);
-	}
-	else
-	{
-		i = -1;
-		while (cmd->argv[++i])
-			if (ft_strchr(cmd->argv[i], '='))
-				env_lst_set(g_envlst, cmd->argv[i], true);
-			else if ((tmp = env_lst_find(g_envlst, cmd->argv[i])))
-				tmp->visible = true;
-	}
-	g_exit_code = EXIT_SUCCESS;
-}
-
-void			unset_exec(t_cmd *cmd)
-{
-	int		i;
-	t_env	*tmp;
-
-	if (cmd->argc > 1)
-	{
-		i = 1;
-		while (cmd->argv[i])
-		{
-			env_lst_delone(&g_envlst, cmd->argv[i]);
-			i++;
-		}
-	}
-	g_exit_code = EXIT_SUCCESS;
-}
-
-void			env_exec(t_cmd *cmd)
-{
-	if (cmd->argc > 1)
-		msg_return(EXIT_FAILURE, "env", "Too many arguments");
-	else
-	{
-		print_env_lst(g_envlst, false);
-		g_exit_code = EXIT_SUCCESS;
-	}
-}
-

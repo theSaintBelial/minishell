@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: thesaintbelial <thesaintbelial@student.    +#+  +:+       +#+         #
+#    By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/19 20:16:18 by lgorilla          #+#    #+#              #
-#    Updated: 2021/03/05 12:11:04 by thesaintbel      ###   ########.fr        #
+#    Updated: 2021/03/18 22:20:36 by lnovella         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			:=	minishell
 CC				:=	clang
-CFLAGS			:=	-g # -Wall -Wextra -Werror
+CFLAGS			:=	-g -Wall -Wextra -Werror
 INCLUDES		:=	-I./includes -I./libft/includes
 LIBFT			:=	libft.a
 LIBFT_DIR		:=	libft
@@ -21,6 +21,8 @@ SRCDIR			:=	src
 OBJDIR			:=	.obj
 
 UTILS_SRCS		:=	env_lst.c \
+					env_lst_utils.c \
+					env_sort.c \
 					env_lst_add.c \
 					errors.c \
 					cleaner.c \
@@ -38,8 +40,12 @@ PARSER_SRCS		:=	parse_syntax.c \
 PARSER_SRCS		:=	$(addprefix parser/, $(PARSER_SRCS))
 
 EXECUTOR_SRCS	:=	executor.c \
+					executor_pipe_io.c \
+					executor_utils.c \
 					cmd.c \
-					builtin.c
+					builtin.c \
+					builtin_utils.c \
+					default_exe.c
 EXECUTOR_SRCS	:=	$(addprefix executor/, $(EXECUTOR_SRCS))
 
 SRCS			:=	main.c

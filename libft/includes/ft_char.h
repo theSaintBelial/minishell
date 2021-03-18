@@ -6,12 +6,12 @@
 /*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/16 12:39:48 by lnovella          #+#    #+#             */
-/*   Updated: 2021/02/16 12:41:37 by lnovella         ###   ########.fr       */
+/*   Updated: 2021/03/18 19:36:00 by lnovella         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_CHAR_H
-#define FT_CHAR_H
+# define FT_CHAR_H
 
 int		ft_isalnum(int ch);
 int		ft_isalpha(int ch);

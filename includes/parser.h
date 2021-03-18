@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnovella <xfearlessrizzze@gmail.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/03/18 19:31:08 by lnovella          #+#    #+#             */
+/*   Updated: 2021/03/18 19:31:10 by lnovella         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PARSER_H
 # define PARSER_H
 
@@ -29,8 +41,8 @@ typedef struct		s_parser
 
 int					parse(t_parser *parser, t_ast_tree **tree);
 int					check_lesser_bigger(t_token *list);
-t_ast_tree			*pipe_com_node(t_token **tmp);
-t_ast_tree			*lesser_bigger_com_node(t_token **tmp, int type,
+t_ast_tree			*pipe_com_node();
+t_ast_tree			*lesser_bigger_com_node(t_token *node, int type,
 									int ex_type, int flag);
 int					first_case_semicolon(t_token *list);
 int					check_pipe(t_token *list);
